@@ -71,6 +71,21 @@ def main() -> None:
         and not t["multi_customer"]
         and len(t["opening_msg"]) >= 20
     ]
+    # Deduplicate by message text. Twitter carries genuine near-duplicates
+    # (retweet-like reposts, users tweeting the same complaint twice). Labelling
+    # the same text twice double-counts it in every metric and inflates apparent
+    # agreement, since the annotator will answer identically both times.
+    seen_text: set[str] = set()
+    deduped = []
+    for t in pool:
+        key = " ".join(t["opening_msg"].lower().split())
+        if key in seen_text:
+            continue
+        seen_text.add(key)
+        deduped.append(t)
+    if len(deduped) < len(pool):
+        info(f"dropped {len(pool)-len(deduped):,} duplicate messages")
+    pool = deduped
     info(f"eligible pool: {len(pool):,} of {len(threads):,} threads")
     for t in pool:
         t["_cluster"] = assigns[t["thread_id"]]["cluster"]

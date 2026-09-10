@@ -1,0 +1,236 @@
+{
+  "brand": "Delta",
+  "k": 10,
+  "source_k": 10,
+  "intents": [
+    {
+      "name": "flight_disruption",
+      "description": "Delay, cancellation, missed connection, diversion",
+      "source_clusters": [
+        2
+      ],
+      "share": 0.1296,
+      "terms": [
+        "30 pm",
+        "connection atlanta",
+        "delay delay",
+        "delay hour",
+        "flight",
+        "flight departing",
+        "flight gets",
+        "gets delayed",
+        "getting delayed",
+        "just delayed"
+      ],
+      "examples": [
+        "Thanks to , we missed one flight because they changed our departure time 30 min before takeoff. And our next flight is delayed an hour",
+        "Flight delayed over 2 hrs by the time we take off, this is ridiculous. I know stuff happens, but I have to take a day off now, Thanks"
+      ]
+    },
+    {
+      "name": "booking_change_refund",
+      "description": "Change/cancel a booking, fare questions, refund status",
+      "source_clusters": [
+        6
+      ],
+      "share": 0.1242,
+      "terms": [
+        "account flight",
+        "flight",
+        "flight 24",
+        "help ticket",
+        "known traveler",
+        "miles number",
+        "non refundable",
+        "purchase flight",
+        "skymiles account",
+        "traveler number"
+      ],
+      "examples": [
+        "your customer service is terrible! I need to change my flight and can not wait 2hrs on hold! Please can you help!",
+        "I would like to try to get a flight changed. Could someone contact me?"
+      ]
+    },
+    {
+      "name": "baggage_issue",
+      "description": "Lost, delayed, damaged or misrouted bags",
+      "source_clusters": [
+        5
+      ],
+      "share": 0.0642,
+      "terms": [
+        "allowance",
+        "bag gate",
+        "bag loaded",
+        "bag tracking",
+        "baggage allowance",
+        "carry bag",
+        "checked bag",
+        "checked baggage",
+        "checked luggage",
+        "lost bag"
+      ],
+      "examples": [
+        "Thanks ...my bags on the wrong plane.",
+        "service agents provided me with worst customer service mislead me now I landed without my bag with guaranteed I would have it I will MOY fly #delta again"
+      ]
+    },
+    {
+      "name": "seating_upgrade",
+      "description": "Seat assignment changed, seat selection, upgrade requests",
+      "source_clusters": [
+        1
+      ],
+      "share": 0.0586,
+      "terms": [
+        "aisle seat",
+        "assigned gate",
+        "change seats",
+        "choose seat",
+        "choose seats",
+        "help seat",
+        "preferred seat",
+        "seat comfort",
+        "seat just",
+        "upgraded middle"
+      ],
+      "examples": [
+        "You moved me out the seat I PAID for on my ATL-BOS flight tomorrow! Not happy! New seat is worse. Please assist...",
+        "Hey why can’t I choose my seat for my flight tomorrow?I’m not going to be stuck in a middle row. Also no seats available on flight bk"
+      ]
+    },
+    {
+      "name": "support_unreachable",
+      "description": "Cannot reach a human: hold times, dropped or missed callbacks",
+      "source_clusters": [
+        0
+      ],
+      "share": 0.0854,
+      "terms": [
+        "customer",
+        "customer service",
+        "greater hours",
+        "hour hold",
+        "service",
+        "service hour",
+        "talk customer",
+        "time speak",
+        "time talk",
+        "wait time"
+      ],
+      "examples": [
+        "I called customer service on thurs &amp; fri. Both times I was told that I would be called back in over two hours. Unacceptable customer service",
+        "I just got a call back from your customer service, waited for 2hrs and they dropped the call.."
+      ]
+    },
+    {
+      "name": "service_complaint",
+      "description": "Complaint about staff, treatment or experience; churn threats",
+      "source_clusters": [
+        9,
+        3
+      ],
+      "share": 0.2122,
+      "terms": [
+        "airline",
+        "attendant",
+        "delta agent",
+        "delta customer",
+        "delta delta",
+        "delta employee",
+        "delta flights",
+        "delta lounge",
+        "experience delta",
+        "flight"
+      ],
+      "examples": [
+        "hey you guys just totally screwed me over on my flights today. I won’t be flying Delta for my business trips anymore.",
+        "sucks! I will never fly Delta again. Delayed on my flight into Seattle &amp; now on my way out. Sitting here for the last hour while they discuss putting sandbags in the front of the plane cause a con",
+        "So ... You're literally the worst airline I've ever heard of and I will never book another flight with you ever again 😒",
+        "Had an absolutely lovely round trip with airlines. So nice to feel like a paying customer rather than an annoyance! Thank you!!"
+      ]
+    },
+    {
+      "name": "praise_compliment",
+      "description": "Positive feedback, thanking crew or staff",
+      "source_clusters": [
+        4
+      ],
+      "share": 0.13,
+      "terms": [
+        "amazing flight",
+        "crew amazing",
+        "crew today",
+        "did amazing",
+        "flight",
+        "flight great",
+        "great crew",
+        "incredible service",
+        "thanks ride",
+        "wonderful flight"
+      ],
+      "examples": [
+        "Thank you for a great flight. Cheers to Kristen, our 1st class flight attendant. The best!!!! Attentive. Helpful. Cheerful. A bright spot on this travel day. Flight 2088 Lit to Atl.",
+        "thanks for a great flight! Your employees we're very friendly and offered great service Flight DL1571 &amp; DL4655"
+      ]
+    },
+    {
+      "name": "social_chatter",
+      "description": "Photos, tags, promos - not a support request",
+      "source_clusters": [
+        7
+      ],
+      "share": 0.0642,
+      "terms": [
+        "2017 opentext",
+        "headquarters atlanta",
+        "success otew",
+        "url",
+        "url beautiful",
+        "url congrats",
+        "url home",
+        "url sky",
+        "url sunrise",
+        "winning 2017"
+      ],
+      "examples": [
+        "I’m flying next time. <url>",
+        "Thanks for the flight this morning✌🏾DTW🛫CVG <url>"
+      ]
+    },
+    {
+      "name": "misc_request",
+      "description": "Other genuine asks: lost items, meal/service requests, misc",
+      "source_clusters": [
+        8
+      ],
+      "share": 0.1317,
+      "terms": [
+        "add nondairy",
+        "black add",
+        "coffee black",
+        "creamers",
+        "creamers need",
+        "flight coffee",
+        "float",
+        "nondairy",
+        "nondairy vegan",
+        "vegan creamers"
+      ],
+      "examples": [
+        "Last minute #eliteuprgade, ah you always make me so happy #businessclassisthebestclass#medallionftw #freeupradesftw #watchoutmiami",
+        "so displeased in your service today !!! #DL1119"
+      ]
+    },
+    {
+      "name": "other",
+      "description": "Does not fit any defined intent. Mandatory bucket - prevents forcing bad fits.",
+      "source_clusters": [
+        -1
+      ],
+      "share": 0.0,
+      "terms": [],
+      "examples": []
+    }
+  ]
+}
