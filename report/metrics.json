@@ -1,0 +1,77 @@
+{
+  "agent": {
+    "system": "agent",
+    "n": 6,
+    "intent_accuracy": 0.5,
+    "intent_accuracy_ci": [
+      0.16666666666666666,
+      0.8333333333333334
+    ],
+    "intent_macro_f1": 0.41666666666666663,
+    "intent_macro_f1_ci": [
+      0.1111111111111111,
+      0.6296296296296297
+    ],
+    "escalation_precision": 0.6,
+    "escalation_recall": 1.0,
+    "escalation_recall_ci": [
+      1.0,
+      1.0
+    ],
+    "escalation_f1": 0.7499999999999999,
+    "escalation_tp": 3,
+    "escalation_fp": 2,
+    "escalation_fn": 0,
+    "escalation_rate": 0.8333333333333334
+  },
+  "simple": {
+    "system": "simple",
+    "n": 80,
+    "intent_accuracy": 0.9875,
+    "intent_accuracy_ci": [
+      0.9625,
+      1.0
+    ],
+    "intent_macro_f1": 0.9862700228832952,
+    "intent_macro_f1_ci": [
+      0.951156462585034,
+      1.0
+    ],
+    "escalation_precision": 1.0,
+    "escalation_recall": 0.7777777777777778,
+    "escalation_recall_ci": [
+      0.6511627906976745,
+      0.8936170212765957
+    ],
+    "escalation_f1": 0.8750000000000001,
+    "escalation_tp": 35,
+    "escalation_fp": 0,
+    "escalation_fn": 10,
+    "escalation_rate": 0.4375
+  },
+  "trivial": {
+    "system": "trivial",
+    "n": 80,
+    "intent_accuracy": 0.225,
+    "intent_accuracy_ci": [
+      0.1375,
+      0.325
+    ],
+    "intent_macro_f1": 0.052478134110787174,
+    "intent_macro_f1_ci": [
+      0.03453689167974882,
+      0.07008086253369272
+    ],
+    "escalation_precision": 0.0,
+    "escalation_recall": 0.0,
+    "escalation_recall_ci": [
+      0.0,
+      0.0
+    ],
+    "escalation_f1": 0.0,
+    "escalation_tp": 0,
+    "escalation_fp": 0,
+    "escalation_fn": 45,
+    "escalation_rate": 0.0
+  }
+}

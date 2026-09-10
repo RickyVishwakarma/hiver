@@ -1,0 +1,26 @@
+# Scratch / regenerable intermediates
+.tmp/
+*.npy
+*.pyc
+__pycache__/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+kaggle.json
+credentials.json
+token.json
+
+# Raw dataset (too large for git; regenerate via `make fetch`)
+data/raw/
+*.zip
+twcs.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtualenvs
+.venv/
+venv/
+env/

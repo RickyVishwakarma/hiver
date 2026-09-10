@@ -1,0 +1,17 @@
+# Full pipeline dependencies — only needed to REGENERATE artifacts from scratch
+# (`make all`): downloading the Kaggle dump, embedding text, and calling local
+# models via Ollama. Graders reproducing headline numbers do NOT need these.
+-r requirements.txt
+
+# Embeddings. We use transformers + torch directly with mean pooling rather than
+# sentence-transformers: one fewer dependency, no version conflict with
+# transformers 5.x, and ~20 lines we can explain line-by-line in a live review.
+torch>=2.2
+transformers>=4.40
+
+# Kaggle dataset download (optional — see tools/fetch_dataset.py --zip for the
+# manual path that needs no account).
+kaggle>=1.6
+
+# Ollama HTTP client is just requests; no SDK needed.
+requests>=2.31

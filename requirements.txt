@@ -1,0 +1,7 @@
+# Core dependencies — enough to run `make reproduce` (the <15 min grader path).
+# Deliberately small: the reproduction path scores COMMITTED model outputs,
+# so it needs no torch, no transformers, no GPU, and no API key.
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+pyarrow>=15.0
