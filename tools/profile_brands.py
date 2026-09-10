@@ -29,6 +29,7 @@ import argparse
 import re
 from collections import Counter, defaultdict
 
+import numpy as np
 import pandas as pd
 
 from common import BRAND_PROFILE, TWCS_CSV, die, info, ok, set_seed
@@ -175,11 +176,12 @@ def main() -> None:
     handles = df.nlargest(60, "n_replies")["brand"].tolist()
     mentions = pass2(handles, args.limit)
     df["n_inbound_mentions"] = df["brand"].map(mentions).fillna(0).astype(int)
-    df["reply_rate"] = (
-        (df["n_replies"] / df["n_inbound_mentions"].replace(0, pd.NA))
-        .astype(float)
-        .round(3)
-    )
+    # Only the top-60 handles get a mention count (pass 2), so brands outside
+    # that set have 0 mentions and an undefined reply rate. Use np.nan rather
+    # than pd.NA: pandas 3.0 refuses to cast NAType to float, which crashed the
+    # first real run. NaN divides and formats cleanly.
+    denom = df["n_inbound_mentions"].astype(float).replace(0.0, np.nan)
+    df["reply_rate"] = (df["n_replies"] / denom).round(3)
 
     # groundable_replies = replies that answer a customer AND don't punt to DMs.
     # This is the pool a retrieval-grounded drafter can actually learn from.

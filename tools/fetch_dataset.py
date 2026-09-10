@@ -4,7 +4,7 @@ Two paths, because Kaggle auth is a common point of failure and we do not want
 the pipeline blocked on it:
 
   1. API:    python tools/fetch_dataset.py
-             Needs KAGGLE_USERNAME + KAGGLE_KEY in .env (or ~/.kaggle/kaggle.json).
+             Needs a KGAT_ token in ~/.kaggle/access_token (see .env.example).
 
   2. Manual: python tools/fetch_dataset.py --zip ~/Downloads/archive.zip
              Download the dataset in a browser from
@@ -36,6 +36,13 @@ EXPECTED_COLUMNS = {
 # The real file is ~500MB / ~2.8M rows. Anything much smaller means we grabbed
 # a partial download or the wrong file.
 MIN_BYTES = 100_000_000
+
+CRED_HELP = """
+    kaggle.com -> avatar -> Settings -> API -> Generate New Token
+    then: mkdir -p ~/.kaggle && echo <KGAT_token> > ~/.kaggle/access_token
+    (the legacy KAGGLE_USERNAME + KAGGLE_KEY pair still works too)
+    or skip auth entirely:
+      python tools/fetch_dataset.py --zip <path-to-archive.zip>"""
 
 
 def _verify(path: Path) -> bool:
@@ -72,14 +79,21 @@ def _extract(zip_path: Path) -> None:
 
 def _download_via_api() -> Path:
     """Use the kaggle CLI package. Credentials come from env or ~/.kaggle."""
-    if not (os.environ.get("KAGGLE_USERNAME") and os.environ.get("KAGGLE_KEY")):
-        if not (Path.home() / ".kaggle" / "kaggle.json").exists():
-            die(
-                "No Kaggle credentials found.\n"
-                "    Either set KAGGLE_USERNAME and KAGGLE_KEY in .env,\n"
-                "    or download the zip manually and run:\n"
-                "      python tools/fetch_dataset.py --zip <path-to-archive.zip>"
-            )
+    # Kaggle now issues a single KGAT_ token; the old username+key pair is the
+    # legacy path. Accept any of the four places credentials can live.
+    kaggle_dir = Path.home() / ".kaggle"
+    has_creds = (
+        os.environ.get("KAGGLE_API_TOKEN")
+        or (kaggle_dir / "access_token").exists()
+        or (os.environ.get("KAGGLE_USERNAME") and os.environ.get("KAGGLE_KEY"))
+        or (kaggle_dir / "kaggle.json").exists()
+    )
+    if not has_creds:
+        die(
+            "No Kaggle credentials found. Current flow:"
+            + CRED_HELP
+        )
+
     try:
         # Imported lazily: the reproduction path must not require this package.
         from kaggle.api.kaggle_api_extended import KaggleApi
