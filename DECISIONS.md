@@ -88,15 +88,24 @@ the wrong number saved a wrong label silently. I rebuilt it to print
 `>>> RECORDED: <INTENT> <<<` and offer a redo key, then re-labelled all 200. The
 v1 labels are archived rather than deleted.
 
-### 9. Reported self-agreement as a lower bound, not a ceiling
+### 9. Re-labelled a second time when the first re-label was too fast to trust
 
-The re-label pass averaged **6.3 seconds per example** against 25.9s on the first
-pass — not enough time to read a tweet and choose among 9 intents plus an
-escalation reason. So the figure measures input speed as much as consistency.
-`validate_judge.py` now prints seconds-per-label beside the agreement number and
-refuses to call it a ceiling below 10s/example. An unqualified "human ceiling =
-35%" would not survive anyone checking the timestamps, which are in the committed
-data.
+The first re-label pass averaged **6.3 seconds per example** against 25.9s on the
+original pass - not enough time to read a tweet and choose among 9 intents plus
+an escalation reason. `validate_judge.py` now prints seconds-per-label beside the
+agreement figure and refuses to call it a ceiling below 10s/example, so the tool
+itself blocks the overclaim.
+
+I redid it at 12.7s. Intent agreement rose from 0.350 to **0.425** (kappa 0.326),
+but the slower pass also exposed something the fast one had hidden: my escalation
+decisions moved from 5/40 to 21/40 on the same examples, kappa **0.036**, which is
+chance. The fast pass had reported escalation agreement of 0.775, which looked
+reassuring and was an artefact of both passes defaulting to "auto" (its kappa was
+negative).
+
+The worse-looking number is the one I kept, and the report now says the agent's
+strongest result - 6 missed escalations against the baseline's 22 - is measured
+against a threshold that shifts when I re-apply it. Both passes are archived.
 
 ### 10. Hybrid escalation: deterministic rules first, LLM second
 

@@ -163,9 +163,12 @@ it, against a true rate of 17%.
 
 **Two results worth reading the report for:**
 
-- **Intent accuracy is 0.375; my own labels self-agree at 0.350.** The metric
-  cannot separate model error from label noise. That is the report's first
-  caveat rather than a footnote.
+- **Intent accuracy is 0.375; my own labels self-agree at 0.425.** The metric
+  cannot cleanly separate model error from label noise. That is the report's
+  first caveat rather than a footnote. Worse, my escalation policy moved 4x
+  between passes (5/40 vs 21/40 on the same examples), so the agent's best
+  result — 6 missed escalations against 22 — is measured against a threshold
+  that shifts.
 - **The LLM judge scores kappa = 0.003 against blind human scores** (Spearman
   −0.261). It measures nothing, so **no reply-quality claim is made anywhere** —
   the conclusions rest on intent and escalation, which do not depend on it.

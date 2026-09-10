@@ -92,9 +92,13 @@ Top pairs: `praise_compliment`→`social_chatter` (6), `other`→`social_chatter
 
 ## 4. What is misleading about my headline number?
 
-**The headline is 0.375 accuracy. My own labels agree with themselves 0.350 of the time.** The model matches my labels about as often as I match my own. At that point the metric cannot separate model error from label noise, and every comparison in Section 2 rests on ground truth of unknown quality. This is the single most important caveat and it undermines the intent results specifically — *not* the escalation results, which rest on a binary decision where my self-agreement was 0.775.
+**The headline is 0.375 accuracy. My own labels agree with themselves 0.425 of the time** (κ = 0.326, n=40, re-labelled at 12.7s per example after a delay, with pass-1 answers hidden). The model matches my labels almost as often as I match my own. At that point the metric cannot cleanly separate model error from label noise, and every comparison in Section 2 rests on ground truth of limited stability. This is the single most important caveat in the report.
 
-**That 0.350 is itself a lower bound, not a ceiling.** The re-label pass averaged **6.3 seconds per example** against 25.9s on the first pass — too fast to read a tweet and choose among 9 intents plus an escalation reason. So it measures input speed as much as consistency. The true reliability is unmeasured, and the tooling now refuses to call this figure a ceiling (`validate_judge.py` prints the pace beside it).
+**Worse: my escalation policy is not stable, and that undermines the agent's best result.** Across the same 40 examples I escalated **5 in pass 1 and 21 in pass 2** — a 4× shift, with 18 of 20 flips going auto→escalate. Raw agreement 0.500, κ = 0.036, which is chance. So "the agent misses only 6 escalations against the baseline's 22" is measured against a threshold that moves when I re-apply it. The direction of the result is probably real — the agent escalates far more aggressively than any labelling of mine — but the precise counts should not be quoted as if the target were fixed.
+
+An earlier re-label pass run at 6.3s/example reported escalation agreement of 0.775, which looked reassuring and was not: its κ was −0.125, i.e. the agreement was entirely explained by both passes defaulting to "auto". The slower pass is worse-looking and more informative. Both are in `data/archive/`.
+
+**What would fix this:** a second annotator, and a written escalation policy fixed *before* labelling rather than reconstructed per example. Both are in Section 5.
 
 **The reply-quality half of this report does not exist.** The LLM judge scores κ_w = **0.003** against 44 blind human scores, with overall Spearman **−0.261**. Every axis lands in the noise band. It is also systematically lenient — it rates tone 4.75 where I rate 2.57. **No reply-quality claim is made anywhere in this report**, and the conclusions rest on intent and escalation, which don't depend on the judge. A weak-but-measured instrument is a result; an unmeasured one would have been decoration.
 
@@ -116,11 +120,13 @@ Top pairs: `praise_compliment`→`social_chatter` (6), `other`→`social_chatter
 
 Ordered by how much each would change my confidence in the numbers, not by how interesting it is to build.
 
-1. **A second annotator on 100 examples (~4 h).** Everything in Section 4 traces back to unverified ground truth. Real inter-annotator agreement would tell us whether 0.375 is a weak model or a noisy target — and nothing else is worth doing until that's known.
-2. **A stronger judge.** A 7–8B model, or two families ensembled with disagreements routed to a human. Also re-run with A/B order swapped to measure position bias directly, which the current single-reply design can't.
-3. **Calibrate escalation on held-out data** and publish the full precision-recall curve so a deployer picks their own operating point instead of inheriting mine. The current 0.45 retrieval threshold never fired once (min observed score 0.460) — it's dead code, and I left it rather than retune it against the test set.
-4. **Reweight metrics to production distribution** using the retained sampling weights, and report both figures.
-5. **Filter cross-brand traffic** — 6% of "Delta" messages are about other airlines and are unanswerable as posed.
+1. **Write the escalation policy down before labelling, then re-label against it (~2 h).** My escalation decisions moved 4× between passes because I was reconstructing the threshold per example rather than applying a fixed one. A written policy — *escalate iff it needs authorisation, private account data, or carries legal/safety weight* — turns a judgement call into a checklist. This is now the cheapest large win available, and it directly repairs the result the agent is best at.
+
+2. **A second annotator on 100 examples (~4 h).** Everything in Section 4 traces back to single-annotator ground truth. Real inter-annotator agreement would tell us whether 0.375 is a weak model or a noisy target.
+3. **A stronger judge.** A 7–8B model, or two families ensembled with disagreements routed to a human. Also re-run with A/B order swapped to measure position bias directly, which the current single-reply design can't.
+4. **Calibrate escalation on held-out data** and publish the full precision-recall curve so a deployer picks their own operating point instead of inheriting mine. The current 0.45 retrieval threshold never fired once (min observed score 0.460) — it's dead code, and I left it rather than retune it against the test set.
+5. **Reweight metrics to production distribution** using the retained sampling weights, and report both figures.
+6. **Filter cross-brand traffic** — 6% of "Delta" messages are about other airlines and are unanswerable as posed.
 
 ---
 

@@ -16,11 +16,24 @@ cost by orders of magnitude.
 
 ## Annotator self-agreement
 
-_Second-pass labelling has not been run yet._
+- Examples re-labelled: **40**
+- Intent: raw agreement **0.425**, Cohen's kappa **0.326**
+- Escalation: raw agreement **0.500**, Cohen's kappa **0.036**
+
+Model scores are read against this figure rather than against 100%.
 
 ## Judge validation
 
-_Judge validation has not been run yet._
+| Axis | Weighted kappa | Spearman | Judge mean | Human mean | Verdict |
+|---|---|---|---|---|---|
+| groundedness | 0.017 | 0.008 | 3.77 | 2.16 | noise |
+| correctness | 0.163 | 0.156 | 2.61 | 2.55 | noise |
+| tone | 0.023 | 0.107 | 4.75 | 2.57 | noise |
+| actionability | -0.024 | -0.102 | 3.73 | 2.50 | noise |
+| safety | -0.041 | -0.247 | 4.09 | 2.20 | noise |
+| overall | 0.003 | -0.261 | 3.79 | 2.40 | noise |
+
+Judge-human residual SD = **0.74** rubric points. Reply-quality differences smaller than this are not claimed anywhere in this report.
 
 ## Judge bias probes
 
