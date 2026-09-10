@@ -70,6 +70,21 @@ def jsonl(name: str) -> list[dict]:
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
+def _real_metrics_digest() -> str:
+    """Hash of the committed report/metrics.json, or '' if absent.
+
+    Used to prove a smoke run never writes fixture numbers into the real
+    deliverable directory - which it once did, before REPORT_DIR followed
+    ANTHILL_DATA_DIR.
+    """
+    import hashlib
+
+    path = ROOT / "report" / "metrics.json"
+    if not path.exists():
+        return ""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def stage(title: str) -> None:
     print(f"\n\033[36m-- {title} {'-' * max(0, 56 - len(title))}\033[0m")
 
@@ -81,6 +96,7 @@ def main() -> None:
     args = ap.parse_args()
 
     SMOKE.mkdir(parents=True, exist_ok=True)
+    real_metrics_before = _real_metrics_digest()
     print("=" * 64)
     print("  SMOKE TEST - synthetic fixture, isolated in .tmp/smoke/")
     print("=" * 64)
@@ -199,8 +215,11 @@ def main() -> None:
     # metrics landed in report/ looking like genuine results.
     check("smoke run wrote metrics to the isolated dir",
           (SMOKE / "report" / "metrics.json").exists())
-    check("smoke run did NOT touch real report/metrics.json",
-          not (ROOT / "report" / "metrics.json").exists())
+    # The real report/metrics.json is a committed deliverable, so "must not
+    # exist" is the wrong invariant. What must hold is that a smoke run leaves
+    # it byte-for-byte unchanged: fixture numbers must never reach it.
+    check("smoke run left real report/metrics.json untouched",
+          _real_metrics_digest() == real_metrics_before)
     if rc == 0:
         check("bootstrap CIs computed", "95% CI" in out)
         check("paired bootstrap ran", "paired bootstrap" in out)

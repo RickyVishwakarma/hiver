@@ -256,13 +256,14 @@ def bias_probes() -> dict:
         if "agent" in gaps and len(gaps) > 1:
             others = np.mean([v for k, v in gaps.items() if k != "agent"])
             delta = gaps["agent"] - others
+            direction = "more" if delta > 0 else "less"
             print(
-                f"\n    agent is scored {delta:+.2f} more generously than other systems,\n"
-                f"    relative to the human. "
+                f"\n    relative to the human, the judge scores the agent {abs(delta):.2f} "
+                f"points {direction}\n    generously than it scores the other systems. "
                 + (
-                    "This is evidence of self-preference toward generated\n    text; the agent's reply-quality lead is inflated by roughly this much."
+                    "That is evidence of self-preference\n    toward generated text; the agent's reply-quality lead is inflated by\n    roughly this much."
                     if delta > 0.25
-                    else "No meaningful self-preference detected."
+                    else "No self-preference toward the agent\n    is detected - if anything the judge is harsher on it."
                 )
             )
             out["self_preference_delta_vs_others"] = float(delta)

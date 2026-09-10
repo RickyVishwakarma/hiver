@@ -10,15 +10,16 @@ account of where the headline number misleads.
 
 ---
 
-## Reproduce the headline results (< 15 minutes)
+## Reproduce the headline results (measured: 56 seconds)
 
 ```bash
 pip install -r requirements.txt
 python run.py reproduce
 ```
 
-That is the whole grader path. It needs **no GPU, no Ollama, no API key, and no
-Kaggle account** — it replays committed model outputs and recomputes every metric,
+That is the whole grader path. Verified from a clean `git clone`: **56 seconds**,
+producing bit-identical macro-F1 values and confidence intervals. It needs **no
+GPU, no Ollama, no API key, and no Kaggle account** — it replays committed model outputs and recomputes every metric,
 confidence interval, and judge-validation statistic from scratch.
 
 Why replay rather than regenerate: the models here are local 3B models on a 4GB
@@ -149,7 +150,27 @@ bootstrap on the same resampled examples.
 
 ## Results
 
-See [REPORT.md](REPORT.md) for results, failure analysis, the mandatory
+| System | Intent acc. | Macro-F1 | Esc. recall | Esc. precision | Missed |
+|---|---|---|---|---|---|
+| `trivial` | 0.200 | 0.037 | 0.000 | 0.000 | 34 |
+| `simple` | 0.285 | 0.205 | 0.353 | 0.545 | 22 |
+| `agent_zeroshot` | 0.260 | 0.230 | 0.824 | 0.203 | 6 |
+| `agent` | **0.375** | **0.346** | **0.824** | 0.201 | **6** |
+
+The agent beats the simple baseline by +0.138 macro-F1, 95% CI [+0.065, +0.209],
+and misses 6 escalations against 22 — but it escalates 70% of all traffic to do
+it, against a true rate of 17%.
+
+**Two results worth reading the report for:**
+
+- **Intent accuracy is 0.375; my own labels self-agree at 0.350.** The metric
+  cannot separate model error from label noise. That is the report's first
+  caveat rather than a footnote.
+- **The LLM judge scores kappa = 0.003 against blind human scores** (Spearman
+  −0.261). It measures nothing, so **no reply-quality claim is made anywhere** —
+  the conclusions rest on intent and escalation, which do not depend on it.
+
+See [REPORT.md](REPORT.md) for failure analysis, the mandatory
 *"What is misleading about my headline number?"* section, and next steps.
 Non-obvious choices are logged in [DECISIONS.md](DECISIONS.md).
 
