@@ -1,6 +1,6 @@
 # Decision log
 
-Fifteen non-obvious choices, in the order they came up.
+Sixteen non-obvious choices, in the order they came up.
 
 ---
 
@@ -173,6 +173,34 @@ cache miss a *hard error*, so the grader path can never silently drift by callin
 a model. Replay is exact rather than approximate — which also sidesteps the fact
 that llama.cpp is not bit-identical across GPU/CPU backends. Measured: **56
 seconds** from a clean clone, with identical numbers.
+
+### 16. Rebuilt the judge as a forced choice, then reported that too as a failure
+
+The 5-axis judge scored kappa 0.003, so the report could make no reply-quality
+claim. The hypothesis worth testing was that *absolute 1-5 scoring* was the
+problem rather than the model: a 3B has no stable notion of what a "4" is, but
+choosing between two concrete replies needs no anchor.
+
+Three things made the rebuild worth doing even though it failed:
+
+- **Each pair is judged in both orders.** Position bias falls out of the design
+  instead of needing a separate probe, and pairs where the two orders disagree
+  are recorded `undecided` rather than resolved by coin-flip. The `direct`
+  prompt picked the reply shown *second* 37 times out of 40.
+- **Both prompt variants are kept and both are scored** against the same human
+  choices. The `deliberate` variant halves the flip rate to 52.5% and is the
+  better instrument; publishing only it would have been tuning the judge against
+  its own validation set.
+- **The human yardstick got the same probe.** My decisive verdicts split 25/10
+  toward whichever reply was shown first (p = 0.017), so the agreement figure is
+  a lower bound rather than a clean measurement. A validation tool that only
+  ever audits the machine is not a validation tool.
+
+Cost: 160 model calls and 17 minutes of labelling, for a result that added
+nothing to the headline table. It is in the report because "we measured the
+instrument twice and it does not work" is a finding, and because the alternative
+- quietly keeping an unvalidated judge - is the failure this assignment screens
+for.
 
 ---
 

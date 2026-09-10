@@ -89,7 +89,7 @@ The drafter copied the anonymised handle out of retrieved precedent: `@123456 Hi
 **2. Fabricated contact details — 3 → 0. [fixed]**
 `1-800-DELTA2` (twice) and `855-551-2113`, none present in the retrieved evidence; 5 other numbers *were* correctly grounded. *Hypothesis:* the model pattern-matches "support reply → give a hotline" and completes a plausible-looking number when precedent lacks one. The most dangerous behaviour in the system — fluent, confident, published under the brand's name. *Fix:* strip any phone number or URL that does not appear verbatim in the retrieved evidence.
 
-Both guards touch reply text only: intent and escalation predictions are byte-identical across the two runs (200/200), so no headline metric moves. Note that the judge and human reply scores in §4 were collected on the **pre-guard** replies — both scored the same text, so the agreement statistic remains valid.
+Both guards touch reply text only: intent and escalation predictions are byte-identical across the two runs (200/200), so no headline metric moves. Note that the 5-axis judge and human reply scores in §4 were collected on the **pre-guard** replies and the pairwise comparisons on the **post-guard** ones; within each exercise the judge and the human scored identical text, so both agreement statistics remain valid.
 
 **3. Over-escalation is the LLM's fault, not the rules' — 100 of 111 cases.**
 `decided_by` attributes it: keyword rules produced 11 over-escalations, the LLM adjudicator 100. *Hypothesis:* the triage prompt frames escalation as the safe default with no cost for choosing it. *Attempted fix:* state the cost explicitly and narrow the criteria — see §2. It reduced over-escalation to 59 and raised missed escalations from 6 to 13, so it is reported as a second operating point rather than adopted. The real fix is a calibrated threshold on held-out data plus a cost ratio from the business, not more prompt wording.
@@ -114,7 +114,20 @@ An earlier re-label pass run at 6.3s/example reported escalation agreement of 0.
 
 **What would fix this:** a second annotator, and a written escalation policy fixed *before* labelling rather than reconstructed per example. Both are in Section 5.
 
-**The reply-quality half of this report does not exist.** The LLM judge scores κ_w = **0.003** against 44 blind human scores, with overall Spearman **−0.261**. Every axis lands in the noise band. It is also systematically lenient — it rates tone 4.75 where I rate 2.57. **No reply-quality claim is made anywhere in this report**, and the conclusions rest on intent and escalation, which don't depend on the judge. A weak-but-measured instrument is a result; an unmeasured one would have been decoration.
+**The reply-quality half of this report does not exist — and I tried twice to make it exist.** The 5-axis LLM judge scores κ_w = **0.003** against 44 blind human scores (Spearman **−0.261**). Every axis lands in the noise band, and it is systematically lenient — it rates tone 4.75 where I rate 2.57.
+
+The natural diagnosis was the *format* rather than the model: a 3B model has no stable anchor for what a "4" is, but picking the better of two concrete replies needs no anchor. So I built a pairwise judge and validated it against 40 blind hand-made comparisons (`tools/judge_pairwise.py`, `tools/score_pairs.py`, ~17 min at 26 s/pair). It failed harder — and it failed before any human data was involved:
+
+| Pairwise prompt | Position-bias flip rate | Malformed JSON | κ vs. human |
+|---|---|---|---|
+| `direct` (pick a winner) | **87.5%** | 2.5% | 0.065 |
+| `deliberate` (assess each, then pick) | **52.5%** | 37.5% | **0.092** |
+
+Every pair is judged in *both* orders, so position bias is measured rather than assumed. The `direct` judge picked whichever reply was shown **second** in 37 of 40 pairs — it was reading the layout, not the replies. Forcing it to assess each reply before choosing halves that, at the cost of breaking its own JSON on 37.5% of calls. The best κ across both variants and every scoring configuration is **0.092**: still noise. Both variants are reported, because publishing only the better prompt would be tuning the instrument against its own validation set.
+
+**And the yardstick itself is bent.** Left/right assignment is a seeded coin flip, so my decisive verdicts should split ≈50/50. They split **25 A / 10 B** (exact two-sided binomial p = **0.017**): I chose the agent's reply 62% of the time when it appeared first and 21% when it appeared second. The κ above is therefore a *lower* bound — measured against a standard that is itself partly positional. The judge's 87.5% self-inconsistency needs no human reference and stands on its own.
+
+**No reply-quality claim is made anywhere in this report.** The conclusions rest on intent and escalation, which do not depend on the judge. Two measured failures of an instrument are a result; an unmeasured instrument would have been decoration.
 
 **"Resolution" is not observable.** `resolved_proxy` means "Delta replied publicly and didn't punt to DMs". Twitter never tells us whether the problem was fixed, and for the 21.6% punted to DMs the actual resolution happened where this dataset cannot see. Every claim about grounding in "how the brand resolved similar issues" is really grounding in *how the brand responded*.
 
@@ -137,7 +150,7 @@ Ordered by how much each would change my confidence in the numbers, not by how i
 1. **Write the escalation policy down before labelling, then re-label against it (~2 h).** My escalation decisions moved 4× between passes because I was reconstructing the threshold per example rather than applying a fixed one. A written policy — *escalate iff it needs authorisation, private account data, or carries legal/safety weight* — turns a judgement call into a checklist. This is now the cheapest large win available, and it directly repairs the result the agent is best at.
 
 2. **A second annotator on 100 examples (~4 h).** Everything in Section 4 traces back to single-annotator ground truth. Real inter-annotator agreement would tell us whether 0.375 is a weak model or a noisy target.
-3. **A stronger judge.** A 7–8B model, or two families ensembled with disagreements routed to a human. Also re-run with A/B order swapped to measure position bias directly, which the current single-reply design can't.
+3. **A stronger judge — the 3B ceiling is now measured, not suspected.** Both a 5-axis and a pairwise judge failed validation, the latter with an 87.5% order-flip rate, so this is a capability limit rather than a prompt-engineering problem. Next: a 7–8B model, or two families ensembled with disagreements routed to a human. The pairwise harness already judges every pair in both orders, so the position-bias probe is in place to evaluate any replacement against.
 4. **Calibrate escalation on held-out data.** §2 gives three points on the curve; a real deployment needs the whole curve plus a cost ratio for missed vs. unnecessary escalation, which only the support organisation can supply. Also worth noting: the 0.45 retrieval threshold never fired once (min observed score 0.460), so that branch is dead code. I left it rather than retune it against the test set.
 5. **Reweight metrics to production distribution** using the retained sampling weights, and report both figures.
 6. **Filter cross-brand traffic** — 6% of "Delta" messages are about other airlines and are unanswerable as posed.

@@ -175,5 +175,112 @@
     },
     "self_preference_delta_vs_others": -1.9166666666666667
   },
-  "pairwise": {}
+  "pairwise": {
+    "deliberate": {
+      "n": 40,
+      "position_bias_flip_rate": 0.525,
+      "parse_failure_rate": 0.375,
+      "single_order": {
+        "all_pairs": {
+          "n": 40,
+          "raw_agreement": 0.2,
+          "kappa": -0.053497942386831365,
+          "underpowered": false
+        },
+        "excluding_trivial": {
+          "n": 30,
+          "raw_agreement": 0.23333333333333334,
+          "kappa": -0.06811145510835925,
+          "underpowered": false
+        },
+        "decisive_only": {
+          "n": 18,
+          "raw_agreement": 0.3888888888888889,
+          "kappa": 0.01980198019801971,
+          "underpowered": false
+        }
+      },
+      "swap_checked": {
+        "all_pairs": {
+          "n": 40,
+          "raw_agreement": 0.25,
+          "kappa": 0.0625,
+          "underpowered": false
+        },
+        "excluding_trivial": {
+          "n": 30,
+          "raw_agreement": 0.3,
+          "kappa": 0.09221902017291062,
+          "underpowered": false
+        },
+        "decisive_only": {
+          "n": 9,
+          "raw_agreement": 0.5555555555555556,
+          "kappa": 0.052631578947368474,
+          "underpowered": true
+        }
+      }
+    },
+    "direct": {
+      "n": 40,
+      "position_bias_flip_rate": 0.875,
+      "parse_failure_rate": 0.025,
+      "single_order": {
+        "all_pairs": {
+          "n": 40,
+          "raw_agreement": 0.275,
+          "kappa": 0.012765957446808529,
+          "underpowered": false
+        },
+        "excluding_trivial": {
+          "n": 30,
+          "raw_agreement": 0.26666666666666666,
+          "kappa": -0.04100946372239744,
+          "underpowered": false
+        },
+        "decisive_only": {
+          "n": 34,
+          "raw_agreement": 0.3235294117647059,
+          "kappa": 0.044009779951100336,
+          "underpowered": false
+        }
+      },
+      "swap_checked": {
+        "all_pairs": {
+          "n": 40,
+          "raw_agreement": 0.225,
+          "kappa": 0.0780669144981413,
+          "underpowered": false
+        },
+        "excluding_trivial": {
+          "n": 30,
+          "raw_agreement": 0.23333333333333334,
+          "kappa": 0.06504065040650409,
+          "underpowered": false
+        },
+        "decisive_only": {
+          "n": 5,
+          "raw_agreement": 0.8,
+          "kappa": 0.6153846153846154,
+          "underpowered": true
+        }
+      }
+    },
+    "_human_position_bias": {
+      "n_decisive": 35,
+      "chose_first": 25,
+      "binomial_p": 0.01667384780012071,
+      "biased": true,
+      "position_balanced_win_rate": {
+        "agent_vs_agent_zeroshot": 0.3214285714285714,
+        "agent_vs_simple": 0.5,
+        "agent_vs_trivial": 0.5714285714285714
+      }
+    },
+    "_headline": {
+      "variant": "deliberate",
+      "kappa": 0.09221902017291062,
+      "usable": false
+    }
+  }
 }

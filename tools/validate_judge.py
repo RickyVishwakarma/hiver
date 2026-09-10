@@ -282,6 +282,89 @@ def _kappa3(a: list[str], b: list[str]) -> float:
     return float(cohen_kappa_score(a, b, labels=labels))
 
 
+def _binom_two_sided(k: int, n: int) -> float:
+    """Exact two-sided binomial p under p=0.5. No scipy (keeps repro light)."""
+    from math import comb
+
+    if n == 0:
+        return float("nan")
+    obs = abs(k - n / 2)
+    return sum(comb(n, i) for i in range(n + 1) if abs(i - n / 2) >= obs) / 2**n
+
+
+def human_position_bias(human: dict, judge: dict) -> dict:
+    """Does the HUMAN yardstick have a side preference of its own?
+
+    This probe exists because the pairwise data said it does, and a yardstick
+    with a measured bias cannot be quietly treated as ground truth. Left/right
+    assignment is a seeded coin flip in pairs.py, so under an unbiased annotator
+    the decisive verdicts should split ~50/50 between A and B. They did not.
+
+    Consequence: judge-vs-human agreement below is contaminated on BOTH sides,
+    so the kappa reported here is a lower bound on the judge rather than a clean
+    measurement of it. (The judge's 87.5% self-inconsistency needs no human
+    reference and stands on its own.)
+
+    Also reports, per comparison, a POSITION-BALANCED win rate: the win rate
+    when shown first and when shown second, averaged. A constant side preference
+    cancels in that average, which is the only way to read these win rates at
+    all given the bias.
+    """
+    shared = sorted(set(human) & set(judge))
+    dec = [p for p in shared if human[p]["verdict"] != "tie"]
+    if len(dec) < 10:
+        return {}
+    a = sum(human[p]["verdict"] == "A" for p in dec)
+    pval = _binom_two_sided(a, len(dec))
+
+    print(f"\n{'='*72}\n  HUMAN POSITION BIAS - is the yardstick itself straight?\n{'='*72}")
+    print(f"  decisive human verdicts: A={a}  B={len(dec)-a}  (n={len(dec)})")
+    print(f"  exact two-sided binomial p (vs 50/50) = {pval:.4f}")
+    print(
+        "    "
+        + (
+            "SIGNIFICANT - the annotator favours one side regardless of content.\n"
+            "    Judge-vs-human kappa is therefore a LOWER BOUND: it is measured\n"
+            "    against a standard that is itself partly positional."
+            if pval < 0.05
+            else "no side preference detected at n this size."
+        )
+    )
+
+    out = {
+        "n_decisive": len(dec),
+        "chose_first": a,
+        "binomial_p": pval,
+        "biased": bool(pval < 0.05),
+        "position_balanced_win_rate": {},
+    }
+
+    print("\n  position-balanced win rates (a constant side preference cancels):")
+    for comp in sorted({judge[p]["comparison"] for p in dec}):
+        first = comp.split("_vs_")[0]
+        sub = [p for p in dec if judge[p]["comparison"] == comp]
+        rates = []
+        for shown_first in (True, False):
+            cell = [p for p in sub if (judge[p]["system_a"] == first) == shown_first]
+            if not cell:
+                continue
+            w = sum(human[p]["winner_system"] == first for p in cell)
+            rates.append(w / len(cell))
+            print(
+                f"    {first} shown {'1st' if shown_first else '2nd'} vs "
+                f"{comp.split('_vs_')[1]:<15} {w}/{len(cell)}"
+            )
+        if len(rates) == 2:
+            bal = sum(rates) / 2
+            out["position_balanced_win_rate"][comp] = bal
+            print(f"      -> balanced {first} win rate {bal:.0%}  (cells of 3-8; not significant)")
+    print(
+        "\n  Every cell here holds single digits. These win rates are reported for\n"
+        "  completeness and support NO claim about reply quality in either direction."
+    )
+    return out
+
+
 def _pairwise_one(name: str, judge: dict, human: dict) -> dict:
     """Score one prompt variant against the human's forced choices.
 
@@ -335,11 +418,22 @@ def _pairwise_one(name: str, judge: dict, human: dict) -> dict:
             j = [getter(p) for p in keys]
             agree = float(np.mean([x == y for x, y in zip(h, j)]))
             k = _kappa3(h, j)
+            # A subset can shrink to a handful of pairs once ties are excluded,
+            # and a small cell will occasionally throw a flattering kappa by luck.
+            # Mark it rather than print it bare: an unmarked 0.615 on n=5 is
+            # exactly the number someone would quote out of this table.
+            underpowered = len(keys) < 10
+            note = "UNDERPOWERED (n<10) - do not cite" if underpowered else interpret(k)
             print(
                 f"    {cfg:<13} {subset:<18} n={len(keys):<4} agreement {agree:.3f}"
-                f"   kappa {k:>6.3f}   {interpret(k)}"
+                f"   kappa {k:>6.3f}   {note}"
             )
-            row[subset.replace(" ", "_")] = {"n": len(keys), "raw_agreement": agree, "kappa": k}
+            row[subset.replace(" ", "_")] = {
+                "n": len(keys),
+                "raw_agreement": agree,
+                "kappa": k,
+                "underpowered": underpowered,
+            }
 
     # Chance is not 1/3: both raters may favour ties or favour one side. State
     # the marginals so raw agreement is read against the right baseline.
@@ -383,14 +477,18 @@ def pairwise_agreement() -> dict:
 
     print(f"\n{'='*72}\n  PAIRWISE JUDGE vs HUMAN\n{'='*72}")
     out = {name: _pairwise_one(name, j, human) for name, j in sorted(variants.items())}
+    out["_human_position_bias"] = human_position_bias(human, next(iter(variants.values())))
 
     # Headline = the best kappa any variant achieved, in its strictest honest
     # configuration, on the subset that excludes the easy trivial-baseline pairs.
     # Taking the best across variants is deliberately generous: if even the most
     # flattering reading is noise, the conclusion is not a matter of tuning.
     def best(v: dict) -> float:
-        k = v.get("swap_checked", {}).get("excluding_trivial", {}).get("kappa")
-        return k if k is not None else float("nan")
+        cell = v.get("swap_checked", {}).get("excluding_trivial", {})
+        k = cell.get("kappa")
+        if k is None or cell.get("underpowered"):
+            return float("nan")
+        return k
 
     ks = {n: best(v) for n, v in out.items()}
     top = max(ks, key=lambda n: (-1e9 if np.isnan(ks[n]) else ks[n]))

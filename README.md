@@ -59,6 +59,9 @@ python run.py sample --n 200
 python run.py generate        # agent + baselines
 python run.py judge
 #   MANUAL: python run.py score            (~45 min, blind)
+python run.py judgepairs                  # pairwise judge, both orders
+python run.py judgepairs --variant deliberate --out judgements_pairwise_deliberate.jsonl
+#   MANUAL: python run.py scorepairs       (~15 min, blind)
 python run.py eval
 python run.py validate
 python run.py freeze          # export the cache for committing
@@ -86,6 +89,9 @@ tools/
   baselines.py        trivial and simple baselines
   judge.py            LLM-as-judge, 5-axis rubric, different model family
   score_replies.py    blind human scoring UI
+  pairs.py            builds the comparison set once, for judge and human alike
+  judge_pairwise.py   forced-choice judge, every pair scored in both orders
+  score_pairs.py      blind human pairwise UI
   run_eval.py         metrics, bootstrap CIs, paired bootstrap
   validate_judge.py   judge-vs-human agreement, human ceiling, bias probes
   smoke_test.py       end-to-end test on a synthetic fixture
@@ -136,6 +142,16 @@ The residual SD sets a floor on what the instrument can resolve; differences
 smaller than that are not claimed. Length-bias and self-preference probes are
 reported alongside.
 
+**A second judge, also validated, also rejected.** When the 5-axis judge came
+back at κ = 0.003, the format was the obvious suspect — a 3B model has no stable
+anchor for what a "4" is. So there is a pairwise judge too: forced choice between
+two replies, each pair judged in *both* orders so position bias is measured
+rather than assumed, validated against 40 blind hand-made comparisons. It picked
+whichever reply was shown second 37 times out of 40. Both prompt variants that
+were tried are reported, and the same position-bias probe is run against the
+*human* labels, which turned out to have a significant side preference of their
+own. Neither judge is usable; the report says so and claims nothing from either.
+
 **Baselines.** *Trivial*: majority class, one canned reply, never escalate —
 exists to expose metric inflation. *Simple*: TF-IDF + logistic regression
 (cross-validated, so no example is scored by a model that saw it) plus verbatim
@@ -169,9 +185,12 @@ it, against a true rate of 17%.
   between passes (5/40 vs 21/40 on the same examples), so the agent's best
   result — 6 missed escalations against 22 — is measured against a threshold
   that shifts.
-- **The LLM judge scores kappa = 0.003 against blind human scores** (Spearman
-  −0.261). It measures nothing, so **no reply-quality claim is made anywhere** —
-  the conclusions rest on intent and escalation, which do not depend on it.
+- **Both LLM judges fail validation.** The 5-axis judge scores κ = 0.003 against
+  blind human scores (Spearman −0.261). A pairwise rebuild does no better
+  (best κ = 0.092) and flips its verdict on 87.5% of pairs when the two replies
+  are swapped. Neither measures anything, so **no reply-quality claim is made
+  anywhere** — the conclusions rest on intent and escalation, which do not
+  depend on either.
 
 See [REPORT.md](REPORT.md) for failure analysis, the mandatory
 *"What is misleading about my headline number?"* section, and next steps.

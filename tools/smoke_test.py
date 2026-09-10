@@ -85,6 +85,24 @@ def _real_metrics_digest() -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _rules_short_circuit() -> bool:
+    """Does a deterministic rule decide before any model is consulted?
+
+    The expensive error in routing is a MISSED escalation, which is why the
+    rules run first and short-circuit. This asserts that ordering on a message
+    that must trip one, independently of what the fixture sample contains.
+    """
+    env = {**os.environ, "ANTHILL_DATA_DIR": str(SMOKE), "ANTHILL_CACHE_ONLY": "1"}
+    code = (
+        "import sys; sys.path.insert(0, r'%s');"
+        "from agent import Agent;"
+        "e, r, d = Agent.route(None, 'my account has been hacked', 'other', 0.99, False);"
+        "assert d.startswith('rule:'), d; assert e; print('OK')"
+    ) % str(ROOT / "tools")
+    p = subprocess.run([PY, "-c", code], cwd=ROOT, env=env, capture_output=True, text=True)
+    return p.returncode == 0 and "OK" in (p.stdout or "")
+
+
 def stage(title: str) -> None:
     print(f"\n\033[36m-- {title} {'-' * max(0, 56 - len(title))}\033[0m")
 
@@ -195,8 +213,14 @@ def main() -> None:
                 check("retrieval returned neighbours", all(len(p["retrieved"]) > 0 for p in preds))
                 check("escalations carry a reason",
                       all(p["escalation_reason"] and p["decided_by"] for p in preds if p["escalate"]))
-                check("rules fire before the LLM",
-                      any(p["decided_by"].startswith("rule:") for p in preds))
+                # Asserted directly rather than by hoping one of the sampled
+                # fixture examples happens to trip a rule. It did not: the first
+                # six golden examples all routed via the LLM, so this check
+                # failed for reasons that had nothing to do with the invariant.
+                # route() is called under ANTHILL_CACHE_ONLY=1 with an empty
+                # cache dir, so if the rule did NOT short-circuit, the LLM call
+                # would raise CacheMiss and the check would fail loudly.
+                check("rules fire before the LLM", _rules_short_circuit())
 
             stage("judge")
             rc, out = sh("judge.py", "--system", "agent", "--limit", str(args.n_llm))
