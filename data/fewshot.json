@@ -1,0 +1,131 @@
+{
+  "note": "exemplars exclude every golden-set thread; intent comes from cluster mapping, not human labels",
+  "examples": [
+    {
+      "intent": "flight_disruption",
+      "cluster": 2,
+      "thread_id": "1528136",
+      "sim": 0.5184,
+      "message": "Thanks to , we missed one flight because they changed our departure time 30 min before takeoff. And our next flight is delayed an hour"
+    },
+    {
+      "intent": "flight_disruption",
+      "cluster": 2,
+      "thread_id": "1631879",
+      "sim": 0.507,
+      "message": "Flight delayed over 2 hrs by the time we take off, this is ridiculous. I know stuff happens, but I have to take a day off now, Thanks"
+    },
+    {
+      "intent": "booking_change_refund",
+      "cluster": 6,
+      "thread_id": "2036395",
+      "sim": 0.4316,
+      "message": "your customer service is terrible! I need to change my flight and can not wait 2hrs on hold! Please can you help!"
+    },
+    {
+      "intent": "booking_change_refund",
+      "cluster": 6,
+      "thread_id": "332899",
+      "sim": 0.4251,
+      "message": "I would like to try to get a flight changed. Could someone contact me?"
+    },
+    {
+      "intent": "baggage_issue",
+      "cluster": 5,
+      "thread_id": "104254",
+      "sim": 0.4545,
+      "message": "Thanks ...my bags on the wrong plane."
+    },
+    {
+      "intent": "baggage_issue",
+      "cluster": 5,
+      "thread_id": "461705",
+      "sim": 0.4513,
+      "message": "service agents provided me with worst customer service mislead me now I landed without my bag with guaranteed I would have it I will MOY fly #delta again"
+    },
+    {
+      "intent": "seating_upgrade",
+      "cluster": 1,
+      "thread_id": "1996901",
+      "sim": 0.4807,
+      "message": "You moved me out the seat I PAID for on my ATL-BOS flight tomorrow! Not happy! New seat is worse. Please assist..."
+    },
+    {
+      "intent": "seating_upgrade",
+      "cluster": 1,
+      "thread_id": "816456",
+      "sim": 0.4753,
+      "message": "Hey why can’t I choose my seat for my flight tomorrow?I’m not going to be stuck in a middle row. Also no seats available on flight bk"
+    },
+    {
+      "intent": "support_unreachable",
+      "cluster": 0,
+      "thread_id": "2694230",
+      "sim": 0.3763,
+      "message": "I called customer service on thurs &amp; fri. Both times I was told that I would be called back in over two hours. Unacceptable customer service"
+    },
+    {
+      "intent": "support_unreachable",
+      "cluster": 0,
+      "thread_id": "365722",
+      "sim": 0.3758,
+      "message": "I just got a call back from your customer service, waited for 2hrs and they dropped the call.."
+    },
+    {
+      "intent": "service_complaint",
+      "cluster": 9,
+      "thread_id": "798898",
+      "sim": 0.5429,
+      "message": "hey you guys just totally screwed me over on my flights today. I won’t be flying Delta for my business trips anymore."
+    },
+    {
+      "intent": "service_complaint",
+      "cluster": 9,
+      "thread_id": "1404527",
+      "sim": 0.54,
+      "message": "They’re at it again. Every time I fly I get screwed. #neveragain awful experiences with delta. <url>"
+    },
+    {
+      "intent": "praise_compliment",
+      "cluster": 4,
+      "thread_id": "54551",
+      "sim": 0.4846,
+      "message": "thanks for a great flight! Your employees we're very friendly and offered great service Flight DL1571 &amp; DL4655"
+    },
+    {
+      "intent": "praise_compliment",
+      "cluster": 4,
+      "thread_id": "2957930",
+      "sim": 0.4841,
+      "message": "Thank you, . What a great flight 👏🏻, can’t be more thankful with your service. <url>"
+    },
+    {
+      "intent": "social_chatter",
+      "cluster": 7,
+      "thread_id": "1266574",
+      "sim": 0.3972,
+      "message": "Thanks for the flight this morning✌🏾DTW🛫CVG <url>"
+    },
+    {
+      "intent": "social_chatter",
+      "cluster": 7,
+      "thread_id": "930737",
+      "sim": 0.3829,
+      "message": "Beautiful flight into <url> ! Thanks for another smooth and safe flight!… <url>"
+    },
+    {
+      "intent": "other",
+      "cluster": 8,
+      "thread_id": "1937432",
+      "sim": 0.1967,
+      "message": "Last minute #eliteuprgade, ah you always make me so happy #businessclassisthebestclass#medallionftw #freeupradesftw #watchoutmiami"
+    },
+    {
+      "intent": "other",
+      "cluster": 8,
+      "thread_id": "229255",
+      "sim": 0.1892,
+      "message": "so displeased in your service today !!! #DL1119"
+    }
+  ]
+}

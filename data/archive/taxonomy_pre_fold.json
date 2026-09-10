@@ -1,6 +1,6 @@
 {
   "brand": "Delta",
-  "k": 9,
+  "k": 10,
   "source_k": 10,
   "intents": [
     {
@@ -199,11 +199,34 @@
       ]
     },
     {
-      "name": "other",
-      "description": "A genuine request that fits none of the above, or content that is not a support request",
+      "name": "misc_request",
+      "description": "Other genuine asks: lost items, meal/service requests, misc",
       "source_clusters": [
-        -1,
         8
+      ],
+      "share": 0.1317,
+      "terms": [
+        "add nondairy",
+        "black add",
+        "coffee black",
+        "creamers",
+        "creamers need",
+        "flight coffee",
+        "float",
+        "nondairy",
+        "nondairy vegan",
+        "vegan creamers"
+      ],
+      "examples": [
+        "Last minute #eliteuprgade, ah you always make me so happy #businessclassisthebestclass#medallionftw #freeupradesftw #watchoutmiami",
+        "so displeased in your service today !!! #DL1119"
+      ]
+    },
+    {
+      "name": "other",
+      "description": "Does not fit any defined intent. Mandatory bucket - prevents forcing bad fits.",
+      "source_clusters": [
+        -1
       ],
       "share": 0.0,
       "terms": [],

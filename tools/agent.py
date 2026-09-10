@@ -57,6 +57,8 @@ from common import (
 )
 
 TOP_K = 4
+NL = chr(10)
+Q = chr(34)
 
 # --- Deterministic escalation rules -----------------------------------------
 # Ordered by severity: the first match wins and becomes the stated reason.
@@ -123,6 +125,15 @@ class Agent:
 
         self.pool_vecs = load_or_encode([t["opening_msg"] for t in self.pool], tag="pool_openings")
 
+        # Few-shot exemplars from tools/build_fewshot.py, drawn only from
+        # threads NOT in the golden set. Zero-shot, this 3B model never emitted
+        # booking_change_refund or other and put 44% of predictions into two
+        # catch-all labels. Examples anchor it; descriptions alone did not.
+        _fs = read_json(DATA / 'fewshot.json', {}) or {}
+        self.fewshot = [e for e in _fs.get('examples', []) if e['intent'] in set(self.names)]
+        if self.fewshot:
+            info('few-shot: %d exemplars' % len(self.fewshot))
+
     # --- head 2 helper -------------------------------------------------------
     def retrieve(self, message: str) -> tuple[list[dict], float]:
         from embed import encode
@@ -151,12 +162,25 @@ class Agent:
         from llm import generate_json
 
         options = "\n".join(f"- {i['name']}: {i.get('description','')}" for i in self.intents)
+        shots = ''
+        if self.fewshot:
+            by = {}
+            for e in self.fewshot:
+                by.setdefault(e['intent'], []).append(e['message'])
+            lines = []
+            for n in self.names:
+                for m in by.get(n, [])[:2]:
+                    lines.append('MESSAGE: ' + Q + m + Q + ' -> ' + n)
+            shots = 'EXAMPLES:' + NL + NL.join(lines) + NL + NL
         prompt = (
-            f"Classify this customer support message into exactly one intent.\n\n"
-            f"INTENTS:\n{options}\n\n"
-            f'MESSAGE:\n"{message}"\n\n'
-            'Respond with JSON only: {"intent": "<one name from the list>", '
-            '"confidence": <0.0-1.0>}'
+            'Classify this customer support message into exactly one intent.' + NL
+            + 'Choose by what the customer NEEDS DONE, not by which words appear.' + NL
+            + 'Every intent listed is a valid answer; do not favour any one of them.' + NL + NL
+            + 'INTENTS:' + NL + options + NL + NL
+            + shots
+            + 'MESSAGE:' + NL + Q + message + Q + NL + NL
+            + 'Respond with JSON only, using an intent name exactly as written above:' + NL
+            + '{' + Q + 'intent' + Q + ': ..., ' + Q + 'confidence' + Q + ': 0.0-1.0}'
         )
         data = generate_json(prompt, system=SYSTEM_CLASSIFY, max_tokens=80)
         raw = str(data.get("intent", "")).strip()

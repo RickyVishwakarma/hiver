@@ -86,12 +86,39 @@ def interpret(k: float) -> str:
 
 
 # --- 1. human ceiling --------------------------------------------------------
+def _pace(rows):
+    """Mean seconds per label from the CLI timestamps.
+
+    Reported next to agreement because the two are not independent: a
+    re-label pass done in a few seconds per example measures input speed,
+    not annotator consistency. Disclosing it stops the agreement figure
+    being read as a true ceiling when it is only a lower bound.
+    """
+    from datetime import datetime
+    ts = []
+    for r in rows:
+        v = r.get('labelled_at', '')
+        if v and v != 'fixture':
+            try: ts.append(datetime.fromisoformat(v))
+            except ValueError: pass
+    if len(ts) < 2: return None
+    ts.sort()
+    return (ts[-1] - ts[0]).total_seconds() / (len(ts) - 1)
+
+
 def self_agreement() -> dict:
     p1 = {r["golden_id"]: r for r in read_jsonl(GOLDEN)}
     p2 = {r["golden_id"]: r for r in read_jsonl(GOLDEN_PASS2)}
     shared = sorted(set(p1) & set(p2))
     if len(shared) < 10:
         warn(f"only {len(shared)} examples labelled twice - run: python tools/label_cli.py --pass2")
+    pace1, pace2 = _pace(list(p1.values())), _pace(list(p2.values()))
+    if pace2 is not None:
+        print('')
+        print('  labelling pace: pass1 %.1fs/label, pass2 %.1fs/label' % (pace1 or 0, pace2))
+        if pace2 < 10:
+            warn('pass 2 averaged %.1fs per label. This figure is a LOWER BOUND on' % pace2)
+            warn('reliability, not a ceiling. The report must say so.')
         return {}
 
     i1 = [p1[g]["intent"] for g in shared]
@@ -123,6 +150,9 @@ def self_agreement() -> dict:
         "intent_kappa": k_intent,
         "escalation_raw_agreement": agree_esc,
         "escalation_kappa": k_esc,
+        "pass1_seconds_per_label": pace1,
+        "pass2_seconds_per_label": pace2,
+        "is_lower_bound_only": bool(pace2 is not None and pace2 < 10),
         "intent_flips": [{"golden_id": g, "pass1": a, "pass2": b} for g, a, b in disagreements],
     }
 
