@@ -1,0 +1,264 @@
+{
+  "brand": "Delta",
+  "k": 10,
+  "intents": [
+    {
+      "cluster_id": 3,
+      "name": "TODO_name_cluster_3",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.1391,
+      "terms": [
+        "flight",
+        "worst airline",
+        "smells like",
+        "airline",
+        "attendant",
+        "fly flight",
+        "sweating",
+        "url",
+        "plane",
+        "flight attendant"
+      ],
+      "examples": [
+        "So ... You're literally the worst airline I've ever heard of and I will never book another flight with you ever again 😒",
+        "Had an absolutely lovely round trip with airlines. So nice to feel like a paying customer rather than an annoyance! Thank you!!",
+        "Love me some best airline ever. Never had a problem <url>",
+        "SERIOUSLY THE WORST AIRLINE!!!",
+        "Shoutout to the flight attendant who personally monitored my itinerary and even moved me to a seat closer to the front of the plane to make sure I made my connecting flight!!! 😭 #bestairline #willfigh"
+      ]
+    },
+    {
+      "cluster_id": 8,
+      "name": "TODO_name_cluster_8",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.1317,
+      "terms": [
+        "nondairy",
+        "nondairy vegan",
+        "creamers",
+        "add nondairy",
+        "vegan creamers",
+        "coffee black",
+        "black add",
+        "flight coffee",
+        "creamers need",
+        "float"
+      ],
+      "examples": [
+        "Last minute #eliteuprgade, ah you always make me so happy #businessclassisthebestclass#medallionftw #freeupradesftw #watchoutmiami",
+        "so displeased in your service today !!! #DL1119",
+        "Shoutout to for the upgrade and stellar service this morning 👍. #KeepClimbing",
+        "Onboard 2445 tonight- upgrade cleared, sipping a PDB, and looking like we'll be on-time to early. A nice respite after a few weeks on that have featured...none of the above",
+        "Flt 1538 my gray neck huggy was mistakenly brought to the gate. Pls hold back in SFO on Friday afternoon. I want it!😁"
+      ]
+    },
+    {
+      "cluster_id": 4,
+      "name": "TODO_name_cluster_4",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.13,
+      "terms": [
+        "amazing flight",
+        "wonderful flight",
+        "crew amazing",
+        "flight great",
+        "did amazing",
+        "flight",
+        "incredible service",
+        "crew today",
+        "thanks ride",
+        "great crew"
+      ],
+      "examples": [
+        "Thank you for a great flight. Cheers to Kristen, our 1st class flight attendant. The best!!!! Attentive. Helpful. Cheerful. A bright spot on this travel day. Flight 2088 Lit to Atl.",
+        "thanks for a great flight! Your employees we're very friendly and offered great service Flight DL1571 &amp; DL4655",
+        "Thank you, . What a great flight 👏🏻, can’t be more thankful with your service. <url>",
+        "Shout out to amazing flight attendants Thomas and Cody on my DL1889 flight from MSP-FSD last night. Excellent service from them! Above and beyond helpful, kind, quick and professional, and did it all ",
+        "Thank you for an amazing flight !!! Great airline staff 👍👍👍"
+      ]
+    },
+    {
+      "cluster_id": 2,
+      "name": "TODO_name_cluster_2",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.1296,
+      "terms": [
+        "flight gets",
+        "delay delay",
+        "gets delayed",
+        "getting delayed",
+        "just delayed",
+        "flight",
+        "delay hour",
+        "30 pm",
+        "connection atlanta",
+        "flight departing"
+      ],
+      "examples": [
+        "Thanks to , we missed one flight because they changed our departure time 30 min before takeoff. And our next flight is delayed an hour",
+        "Flight delayed over 2 hrs by the time we take off, this is ridiculous. I know stuff happens, but I have to take a day off now, Thanks",
+        "What the actual fuck is wrong w/ I’m about to switch airlines after this trip!!!! My flight was supposed to leave at 11 and it’s been delayed 3 times and now it’s 3:15 Jesus Christ",
+        "flight delayed 12 hours...I was ready to board! And I get nothing 😑😑😑😩",
+        "this sucks. Airlines say to arrive two hours early then delay your flight for four hours! DL1727"
+      ]
+    },
+    {
+      "cluster_id": 6,
+      "name": "TODO_name_cluster_6",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.1242,
+      "terms": [
+        "traveler number",
+        "non refundable",
+        "known traveler",
+        "skymiles account",
+        "purchase flight",
+        "help ticket",
+        "account flight",
+        "miles number",
+        "flight 24",
+        "flight"
+      ],
+      "examples": [
+        "your customer service is terrible! I need to change my flight and can not wait 2hrs on hold! Please can you help!",
+        "I would like to try to get a flight changed. Could someone contact me?",
+        "Hey - can you help me to see if I can change my flight?",
+        "Could you please have someone check the change flight on the online system. 2 days now it fails on purchase page.",
+        "possibly need to cancel a flight, but have no idea how much (if any) I would get refunded! Trying to find out before i press cancel!"
+      ]
+    },
+    {
+      "cluster_id": 0,
+      "name": "TODO_name_cluster_0",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.0854,
+      "terms": [
+        "service hour",
+        "time speak",
+        "greater hours",
+        "service",
+        "customer",
+        "hour hold",
+        "customer service",
+        "time talk",
+        "talk customer",
+        "wait time"
+      ],
+      "examples": [
+        "I called customer service on thurs &amp; fri. Both times I was told that I would be called back in over two hours. Unacceptable customer service",
+        "I just got a call back from your customer service, waited for 2hrs and they dropped the call..",
+        "your company sucks at customer service 3 hours waiting over the phone!@$",
+        "2 hour wait on the phone for a customer service rep. Ridiculous!",
+        "I just waited 1 hr for a customer service callback and spent 30 min on phone and nothing was resolved!!"
+      ]
+    },
+    {
+      "cluster_id": 9,
+      "name": "TODO_name_cluster_9",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.0731,
+      "terms": [
+        "delta flights",
+        "love delta",
+        "delta delta",
+        "service delta",
+        "flights delta",
+        "delta agent",
+        "delta lounge",
+        "experience delta",
+        "delta customer",
+        "delta employee"
+      ],
+      "examples": [
+        "hey you guys just totally screwed me over on my flights today. I won’t be flying Delta for my business trips anymore.",
+        "sucks! I will never fly Delta again. Delayed on my flight into Seattle &amp; now on my way out. Sitting here for the last hour while they discuss putting sandbags in the front of the plane cause a con",
+        "They’re at it again. Every time I fly I get screwed. #neveragain awful experiences with delta. <url>",
+        "Don't fly with Delta Airlines. They changed our flight 3 times. We sat at the airport for hours!! So unrelyable!!",
+        "I have been a loyal Delta customer, but no more. Will be driving more and using other airlines if needed."
+      ]
+    },
+    {
+      "cluster_id": 5,
+      "name": "TODO_name_cluster_5",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.0642,
+      "terms": [
+        "checked bag",
+        "checked luggage",
+        "bag gate",
+        "bag loaded",
+        "baggage allowance",
+        "checked baggage",
+        "allowance",
+        "bag tracking",
+        "carry bag",
+        "lost bag"
+      ],
+      "examples": [
+        "Thanks ...my bags on the wrong plane.",
+        "service agents provided me with worst customer service mislead me now I landed without my bag with guaranteed I would have it I will MOY fly #delta again",
+        "thanks for not getting my bag on the same plane as me and not doing anything to get it back to me. A++++",
+        "you might want to improve your baggage services. Landed an hour ago still waiting for the bags.....",
+        "HELP I LOST MY BAGS ON YOUR FLIGHT"
+      ]
+    },
+    {
+      "cluster_id": 7,
+      "name": "TODO_name_cluster_7",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.0642,
+      "terms": [
+        "url sky",
+        "url congrats",
+        "url sunrise",
+        "headquarters atlanta",
+        "url beautiful",
+        "url home",
+        "url",
+        "success otew",
+        "2017 opentext",
+        "winning 2017"
+      ],
+      "examples": [
+        "I’m flying next time. <url>",
+        "Thanks for the flight this morning✌🏾DTW🛫CVG <url>",
+        "Beautiful flight into <url> ! Thanks for another smooth and safe flight!… <url>",
+        "Whoops! Glad I fly <url>",
+        "Way to go ! <url>"
+      ]
+    },
+    {
+      "cluster_id": 1,
+      "name": "TODO_name_cluster_1",
+      "description": "TODO one line: what customer need does this represent?",
+      "share": 0.0586,
+      "terms": [
+        "choose seat",
+        "change seats",
+        "choose seats",
+        "seat comfort",
+        "help seat",
+        "assigned gate",
+        "aisle seat",
+        "seat just",
+        "preferred seat",
+        "upgraded middle"
+      ],
+      "examples": [
+        "You moved me out the seat I PAID for on my ATL-BOS flight tomorrow! Not happy! New seat is worse. Please assist...",
+        "Hey why can’t I choose my seat for my flight tomorrow?I’m not going to be stuck in a middle row. Also no seats available on flight bk",
+        "I got “upgraded” to a middle seat for my 14 hour flight home. thank you?... 🤔",
+        "Why don't you let people know when you arbitrarily change their seat? Just checked my booking and saw it's been changed. Grrrr.",
+        "Total confusion with this flight!!!! All I want is to get home so I can get to work. All these seating changes is crazy!"
+      ]
+    },
+    {
+      "cluster_id": -1,
+      "name": "other",
+      "description": "Anything that does not fit a defined intent. Mandatory bucket - prevents annotators from forcing bad fits into the nearest class.",
+      "share": 0.0,
+      "terms": [],
+      "examples": []
+    }
+  ]
+}

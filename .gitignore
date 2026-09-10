@@ -28,9 +28,11 @@ env/
 # Real deliverables are force-added explicitly once generated from the
 # Kaggle dump (see README "Regenerate everything from raw data").
 data/threads.jsonl
-data/cluster_assignments.jsonl
-data/taxonomy_draft.json
-data/brand_profile.csv
 data/golden_unlabelled.jsonl
 data/preds_*.jsonl
 data/judgements.jsonl
+
+# threads.jsonl is 43MB and the reproduction path never reads it
+# (run_eval/validate_judge need only golden + preds + judgements).
+# A 300-thread sample is committed for inspection instead.
+!data/threads.sample.jsonl
