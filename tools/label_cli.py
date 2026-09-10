@@ -17,7 +17,8 @@ Two modes:
 
 Progress is saved after every example, so it is safe to quit and resume.
 
-Keys:  1-9 intent   e escalate   a auto   b back   s skip   q save+quit
+Keys:  <number> intent (type the number and press Enter)   b back   s skip   q save+quit
+       then: a = auto-handle, e = escalate (+ a reason number)
 """
 from __future__ import annotations
 
@@ -140,7 +141,7 @@ def main() -> None:
     while i < len(todo):
         ex = todo[i]
         render(ex, len(existing) + i, len(examples), intents, len(labels))
-        print("  1-9 intent   b back   s skip   q save+quit")
+        print("  <number> = intent   b = back   s = skip   q = save+quit")
         c = input("  > ").strip().lower()
 
         if c == "q":

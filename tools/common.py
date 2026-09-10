@@ -39,7 +39,10 @@ TOOLS = ROOT / "tools"
 DATA = Path(os.environ.get("ANTHILL_DATA_DIR", ROOT / "data"))
 TMP = ROOT / ".tmp"
 RAW = TMP / "raw"
-REPORT_DIR = ROOT / "report"
+# REPORT_DIR must follow the same redirect as DATA. It previously did not, so a
+# smoke run on synthetic data wrote fixture metrics into the real report/
+# directory - the deliverable folder, where they look like genuine results.
+REPORT_DIR = (DATA / "report") if os.environ.get("ANTHILL_DATA_DIR") else (ROOT / "report")
 
 # Committed artifacts (small, in git) - these are what `make reproduce` reads.
 THREADS = DATA / "threads.jsonl"

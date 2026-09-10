@@ -194,7 +194,13 @@ def main() -> None:
     stage("evaluation")
     rc, out = sh("run_eval.py", "--detail")
     check("eval ran", rc == 0, out.strip()[-120:] if rc else "")
-    metrics = SMOKE.parent.parent / "report" / "metrics.json"
+    # Regression guard: a smoke run must leave the REAL deliverable dir alone.
+    # This previously failed - REPORT_DIR ignored ANTHILL_DATA_DIR, so fixture
+    # metrics landed in report/ looking like genuine results.
+    check("smoke run wrote metrics to the isolated dir",
+          (SMOKE / "report" / "metrics.json").exists())
+    check("smoke run did NOT touch real report/metrics.json",
+          not (ROOT / "report" / "metrics.json").exists())
     if rc == 0:
         check("bootstrap CIs computed", "95% CI" in out)
         check("paired bootstrap ran", "paired bootstrap" in out)
