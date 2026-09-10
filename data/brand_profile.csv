@@ -1,4 +1,0 @@
-brand,n_replies,dm_punt_rate,median_reply_chars,ascii_frac,n_answers_to_customer,n_inbound_mentions,reply_rate,groundable_replies
-FixtureSupport,1117,0.1862,113,1.0,1117,1740,0.642,909
-OtherCo,150,1.0,39,1.0,150,150,1.0,0
-ThirdBrand,150,1.0,39,1.0,150,150,1.0,0

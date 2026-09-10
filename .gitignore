@@ -24,3 +24,13 @@ Thumbs.db
 .venv/
 venv/
 env/
+# Fixture/dev artifacts must never be committed as if they were real data.
+# Real deliverables are force-added explicitly once generated from the
+# Kaggle dump (see README "Regenerate everything from raw data").
+data/threads.jsonl
+data/cluster_assignments.jsonl
+data/taxonomy_draft.json
+data/brand_profile.csv
+data/golden_unlabelled.jsonl
+data/preds_*.jsonl
+data/judgements.jsonl
