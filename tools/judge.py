@@ -37,7 +37,18 @@ import argparse
 
 import numpy as np
 
-from common import DATA, GOLDEN, JUDGE_MODEL, die, info, ok, read_jsonl, set_seed, write_jsonl
+from common import (
+    DATA,
+    GOLDEN,
+    JUDGE_MODEL,
+    die,
+    info,
+    ok,
+    read_jsonl,
+    set_seed,
+    warn,
+    write_jsonl,
+)
 
 AXES = ["groundedness", "correctness", "tone", "actionability", "safety"]
 
@@ -160,8 +171,17 @@ def main() -> None:
     if not all_rows:
         die("nothing judged - run agent.py/baselines.py first")
 
-    write_jsonl(DATA / "judgements.jsonl", all_rows)
-    ok(f"wrote {len(all_rows)} judgements -> data/judgements.jsonl")
+    # Merge with any existing judgements instead of overwriting. Judging one
+    # system at a time is the norm here (4GB VRAM holds one model, and a run
+    # can die on memory pressure), so an overwrite would silently discard every
+    # previously judged system and leave only the last one.
+    merged = {(r["golden_id"], r["system"]): r for r in read_jsonl(DATA / "judgements.jsonl")}
+    merged.update({(r["golden_id"], r["system"]): r for r in all_rows})
+    write_jsonl(DATA / "judgements.jsonl", [merged[k] for k in sorted(merged)])
+    kept = len(merged) - len(all_rows)
+    if kept > 0:
+        info(f"merged with {kept} existing judgements from other systems")
+    ok(f"wrote {len(merged)} judgements -> data/judgements.jsonl")
     print_stats()
 
     print(f"\n{'system':<10} " + " ".join(f"{a[:7]:>8}" for a in AXES) + f" {'overall':>8}")
