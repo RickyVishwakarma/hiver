@@ -76,6 +76,20 @@ def render(ex: dict, idx: int, total: int, intents: list[dict], done: int) -> No
     print("-" * 76)
 
 
+# The escalation policy, fixed in writing BEFORE labelling and shown at the
+# moment of decision. Without it I was reconstructing the threshold per example
+# and it drifted badly: 5/40 escalated on one pass, 21/40 on a re-label of the
+# same examples (Cohen's kappa 0.036, i.e. chance). A checklist is reproducible
+# in a way "does this feel like it needs a human" is not.
+ESCALATION_POLICY = [
+    "needs authorisation a bot cannot give (refund, compensation, goodwill)",
+    "cannot be answered without private booking or account data",
+    "involves account compromise, fraud, or a disputed charge",
+    "carries legal, regulatory, or physical-safety weight",
+    "is genuinely unintelligible",
+]
+
+
 def ask_escalation(intent: str) -> tuple[bool | None, str, str]:
     # Echo the selection back. Without this a mis-key is invisible: the
     # screen just advances and a wrong label is saved silently. Measured
@@ -83,8 +97,11 @@ def ask_escalation(intent: str) -> tuple[bool | None, str, str]:
     # between unrelated intents (flight_disruption <-> praise_compliment).
     print("")
     print("  >>> RECORDED: " + intent.upper() + " <<<")
-    print("\n  Should this be AUTO-HANDLED or ESCALATED to a human?")
-    print("    a = auto-handle    e = escalate    x = wrong intent, redo")
+    print("\n  ESCALATE only if at least ONE of these is true:")
+    for i, rule in enumerate(ESCALATION_POLICY, 1):
+        print(f"    {i}) {rule}")
+    print("  Otherwise AUTO-HANDLE. Anger alone is not a reason.")
+    print("\n    a = auto-handle    e = escalate    x = wrong intent, redo")
     while True:
         c = input("  > ").strip().lower()
         if c == "x":

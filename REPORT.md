@@ -55,9 +55,23 @@ Operating target: **high escalation recall, accept the precision cost, auto-hand
 | `agent` − `agent_zeroshot` | +0.115 | [+0.065, +0.164] | significant |
 | `simple` − `trivial` | +0.166 | [+0.124, +0.211] | significant |
 
-### What the numbers actually say
+### Escalation is a dial, and I measured three settings of it
 
-**Escalation is where the agent earns its cost.** 6 missed vs the simple baseline's 22, and 34 for trivial. It catches 82% of cases needing a human. But it buys that by escalating **70% of all messages** against a true rate of 17% — precision 0.201. As an automation product that's close to useless; as a safety net it's the best of the four.
+The 70% escalation rate is the most obviously unsatisfying number in the table, so I tried to fix it by rewriting the triage prompt. It did not work, and the way it failed is more useful than a fix would have been.
+
+| Triage prompt | Rate | Recall | Precision | **Missed** | Over |
+|---|---|---|---|---|---|
+| `broad` (ships) | 70% | **0.824** | 0.201 | **6** | 111 |
+| `strict` | 56% | 0.735 | 0.225 | 9 | 86 |
+| `narrow` | 40% | 0.618 | 0.263 | 13 | 59 |
+
+Every variant that cut over-escalation paid for it in missed escalations — **the error this report defines as expensive**. By our own stated objective the "improvement" is a regression, so `broad` ships and all three are reported. Selecting the flattering one would have been the easy move and the dishonest one.
+
+Two things worth noting. First, what moves the dial is the **breadth of the criteria list**, not the framing around it: `narrow` literally instructs the model to escalate when uncertain and escalates *least* of the three. Second, incidental wording matters as much as intent — rewording `broad` during a refactor, without changing its meaning, moved the rate from 70% to 88%. The exact original is restored from git and pinned. A 3B model does not respond to prompt intent so much as to prompt surface, which is consistent with its self-reported confidence carrying no signal either.
+
+None of these was tuned against the golden set: three principled variants, each evaluated once. Choosing between them needs a real cost ratio for a missed vs. unnecessary escalation, which I do not have — so the honest deliverable is the curve, not a point.
+
+**Against the baselines**, the shipped agent misses 6 escalations to the simple baseline's 22 and trivial's 34. As an automation product a 70% escalation rate is close to useless; as a safety net it is the best of the systems measured.
 
 **The few-shot fix was the single largest intervention.** Zero-shot, the 3B classifier never emitted `booking_change_refund` or `other` at all and dumped 44% of predictions into two catch-all labels. Adding 18 exemplars — drawn only from threads absent from the golden set, with intents from clustering rather than human labels — moved `booking_change_refund` from 0.000/0.000 precision/recall to 0.370/0.417. Both runs are reported so the size of that fix is visible rather than folded into one headline.
 
@@ -78,7 +92,7 @@ The drafter copied the anonymised handle out of retrieved precedent: `@123456 Hi
 Both guards touch reply text only: intent and escalation predictions are byte-identical across the two runs (200/200), so no headline metric moves. Note that the judge and human reply scores in §4 were collected on the **pre-guard** replies — both scored the same text, so the agreement statistic remains valid.
 
 **3. Over-escalation is the LLM's fault, not the rules' — 100 of 111 cases.**
-`decided_by` attributes it: keyword rules produced 11 over-escalations, the LLM adjudicator 100. *Hypothesis:* the triage prompt frames escalation as the safe default with no cost for choosing it. *Fix:* give the LLM the asymmetry explicitly and calibrate a threshold on held-out data.
+`decided_by` attributes it: keyword rules produced 11 over-escalations, the LLM adjudicator 100. *Hypothesis:* the triage prompt frames escalation as the safe default with no cost for choosing it. *Attempted fix:* state the cost explicitly and narrow the criteria — see §2. It reduced over-escalation to 59 and raised missed escalations from 6 to 13, so it is reported as a second operating point rather than adopted. The real fix is a calibrated threshold on held-out data plus a cost ratio from the business, not more prompt wording.
 
 **4. Self-reported confidence carries zero information.**
 0.974 when correct, 0.975 when wrong (n=75 / n=125). I predicted this before seeing data (decision #10), which is why routing uses retrieval score rather than the model's opinion of itself. *Hypothesis:* instruction-tuned 3B models emit high confidence as a stylistic default.
@@ -124,7 +138,7 @@ Ordered by how much each would change my confidence in the numbers, not by how i
 
 2. **A second annotator on 100 examples (~4 h).** Everything in Section 4 traces back to single-annotator ground truth. Real inter-annotator agreement would tell us whether 0.375 is a weak model or a noisy target.
 3. **A stronger judge.** A 7–8B model, or two families ensembled with disagreements routed to a human. Also re-run with A/B order swapped to measure position bias directly, which the current single-reply design can't.
-4. **Calibrate escalation on held-out data** and publish the full precision-recall curve so a deployer picks their own operating point instead of inheriting mine. The current 0.45 retrieval threshold never fired once (min observed score 0.460) — it's dead code, and I left it rather than retune it against the test set.
+4. **Calibrate escalation on held-out data.** §2 gives three points on the curve; a real deployment needs the whole curve plus a cost ratio for missed vs. unnecessary escalation, which only the support organisation can supply. Also worth noting: the 0.45 retrieval threshold never fired once (min observed score 0.460), so that branch is dead code. I left it rather than retune it against the test set.
 5. **Reweight metrics to production distribution** using the retained sampling weights, and report both figures.
 6. **Filter cross-brand traffic** — 6% of "Delta" messages are about other airlines and are unanswerable as posed.
 

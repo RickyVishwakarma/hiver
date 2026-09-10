@@ -24,24 +24,74 @@
     "escalation_fn": 6,
     "escalation_rate": 0.695
   },
+  "agent_narrow": {
+    "system": "agent_narrow",
+    "n": 200,
+    "intent_accuracy": 0.375,
+    "intent_accuracy_ci": [
+      0.309875,
+      0.445
+    ],
+    "intent_macro_f1": 0.3455006997164612,
+    "intent_macro_f1_ci": [
+      0.27864138565386215,
+      0.40432839389014485
+    ],
+    "escalation_precision": 0.2625,
+    "escalation_recall": 0.6176470588235294,
+    "escalation_recall_ci": [
+      0.45161290322580644,
+      0.7778645833333329
+    ],
+    "escalation_f1": 0.368421052631579,
+    "escalation_tp": 21,
+    "escalation_fp": 59,
+    "escalation_fn": 13,
+    "escalation_rate": 0.4
+  },
+  "agent_strict": {
+    "system": "agent_strict",
+    "n": 200,
+    "intent_accuracy": 0.375,
+    "intent_accuracy_ci": [
+      0.31,
+      0.44
+    ],
+    "intent_macro_f1": 0.3455006997164612,
+    "intent_macro_f1_ci": [
+      0.27299388695402055,
+      0.40239710803888
+    ],
+    "escalation_precision": 0.22522522522522523,
+    "escalation_recall": 0.7352941176470589,
+    "escalation_recall_ci": [
+      0.5806451612903226,
+      0.8787878787878788
+    ],
+    "escalation_f1": 0.3448275862068966,
+    "escalation_tp": 25,
+    "escalation_fp": 86,
+    "escalation_fn": 9,
+    "escalation_rate": 0.555
+  },
   "agent_zeroshot": {
     "system": "agent_zeroshot",
     "n": 200,
     "intent_accuracy": 0.26,
     "intent_accuracy_ci": [
       0.2,
-      0.325
+      0.32
     ],
     "intent_macro_f1": 0.22962724357258718,
     "intent_macro_f1_ci": [
-      0.17242457868750433,
-      0.27788562372679554
+      0.1745235343524533,
+      0.2787788779084394
     ],
     "escalation_precision": 0.2028985507246377,
     "escalation_recall": 0.8235294117647058,
     "escalation_recall_ci": [
-      0.6857142857142857,
-      0.9428571428571428
+      0.68,
+      0.9375
     ],
     "escalation_f1": 0.32558139534883723,
     "escalation_tp": 28,
@@ -55,18 +105,18 @@
     "intent_accuracy": 0.285,
     "intent_accuracy_ci": [
       0.225,
-      0.345
+      0.35
     ],
     "intent_macro_f1": 0.20507805665747003,
     "intent_macro_f1_ci": [
-      0.15949036106858294,
-      0.24652247511017275
+      0.16137332559371556,
+      0.24873977673522837
     ],
     "escalation_precision": 0.5454545454545454,
     "escalation_recall": 0.35294117647058826,
     "escalation_recall_ci": [
       0.1935483870967742,
-      0.5161290322580645
+      0.5151515151515151
     ],
     "escalation_f1": 0.42857142857142855,
     "escalation_tp": 12,
@@ -85,7 +135,7 @@
     "intent_macro_f1": 0.037037037037037035,
     "intent_macro_f1_ci": [
       0.02814167879670063,
-      0.0451527224435591
+      0.04585537918871252
     ],
     "escalation_precision": 0.0,
     "escalation_recall": 0.0,

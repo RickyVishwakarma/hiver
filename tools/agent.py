@@ -105,6 +105,68 @@ RULES: list[tuple[str, re.Pattern]] = [
     ),
 ]
 
+# Three measured triage postures. Each is a whole prompt body, because what
+# actually moved the escalation rate was the BREADTH OF THE CRITERIA, not the
+# framing around them:
+#
+#   broad   70% escalated, recall 0.824, 6 missed, 111 over   <- ships
+#   strict  56%,           recall 0.735, 9 missed,  86 over
+#   narrow  40%,           recall 0.618, 13 missed, 59 over
+#
+# `broad` ships because this report's stated objective is recall over precision:
+# every variant that cut over-escalation paid for it in missed escalations, the
+# error we defined as expensive. The attempted "improvement" was a regression by
+# our own criterion, which is why all three are reported rather than only the
+# flattering one.
+#
+# Note the framing did not behave as intended: `narrow` literally instructs the
+# model to escalate when uncertain and escalates LEAST of the three. A 3B model
+# does not reliably act on that kind of instruction - consistent with its
+# self-reported confidence carrying no signal either.
+#
+# None of these was tuned against the golden set: three principled variants,
+# each evaluated once.
+_CRITERIA_NARROW = (
+    "ESCALATE only if at least one is true:" + chr(10)
+    + "  - needs authorisation a bot cannot give (refund, compensation, goodwill)" + chr(10)
+    + "  - cannot be answered without private booking or account data" + chr(10)
+    + "  - involves account compromise, fraud, or a disputed charge" + chr(10)
+    + "  - carries legal, regulatory, or physical-safety weight" + chr(10)
+    + "  - is genuinely unintelligible" + chr(10) + chr(10)
+    + "AUTO-HANDLE everything else: praise, thanks, jokes, photos, chatter, angry "
+    "complaints with no specific action requested, and general questions "
+    "answerable from published policy." + chr(10)
+    + "Anger alone is NOT a reason to escalate." + chr(10) + chr(10)
+)
+
+POSTURE = {
+    # Verbatim original. Reworded slightly during refactoring and the escalation
+    # rate jumped 70% -> 88%, so the exact wording is restored from git and left
+    # alone: with a 3B model, incidental phrasing changes move the operating
+    # point as much as the deliberate ones do.
+    "broad": (
+        "You are triaging a customer support message. Decide whether a "
+        "support bot can safely answer it, or whether a human must handle it."
+        + chr(10) + chr(10)
+        + "Escalate if it needs a decision only a human can authorise, involves "
+        "money/account access disputes, shows severe distress, or is unclear." + chr(10)
+        + "Auto-handle routine questions the bot can answer from precedent."
+        + chr(10) + chr(10)
+    ),
+    "strict": (
+        "You are triaging a customer support message for an airline." + chr(10) + chr(10)
+        + "MOST MESSAGES DO NOT NEED A HUMAN. Escalating is not free - it consumes "
+        "an agent's time and delays customers who genuinely need one. Escalate "
+        "only when answering from precedent would be wrong or unsafe, not merely "
+        "when the customer is upset." + chr(10) + chr(10) + _CRITERIA_NARROW
+    ),
+    "narrow": (
+        "You are triaging a customer support message for an airline." + chr(10) + chr(10)
+        + "When genuinely uncertain, escalate: a missed escalation costs far more "
+        "than an unnecessary one." + chr(10) + chr(10) + _CRITERIA_NARROW
+    ),
+}
+
 SYSTEM_CLASSIFY = (
     "You are an intent classifier for a customer support team. "
     "You reply with JSON only. No prose, no markdown fences."
@@ -119,11 +181,12 @@ SYSTEM_DRAFT = (
 
 
 class Agent:
-    def __init__(self, top_k: int = TOP_K):
+    def __init__(self, top_k: int = TOP_K, triage_posture: str = "broad"):
         self.taxonomy = read_json(TAXONOMY) or die(f"{TAXONOMY} missing - name your clusters first")
         self.intents = [i for i in self.taxonomy["intents"] if not i["name"].startswith("TODO_")]
         self.names = [i["name"] for i in self.intents]
         self.top_k = top_k
+        self.triage_posture = triage_posture
 
         # Stream the thread file and keep only the three fields retrieval needs.
         # Loading all 27k threads with their full `turns` arrays materialised
@@ -297,13 +360,9 @@ class Agent:
         from llm import generate_json
 
         prompt = (
-            "You are triaging a customer support message. Decide whether a "
-            "support bot can safely answer it, or whether a human must handle it.\n\n"
-            "Escalate if it needs a decision only a human can authorise, involves "
-            "money/account access disputes, shows severe distress, or is unclear.\n"
-            "Auto-handle routine questions the bot can answer from precedent.\n\n"
-            f'MESSAGE:\n"{message}"\n\n'
-            'JSON only: {"escalate": true|false, "reason": "<short reason>"}'
+            POSTURE[self.triage_posture]
+            + "MESSAGE:" + NL + Q + message + Q + NL + NL
+            + 'JSON only: {"escalate": true|false, "reason": "<short reason>"}'
         )
         data = generate_json(prompt, system=SYSTEM_CLASSIFY, max_tokens=100)
         if data.get("escalate") is True:
@@ -339,6 +398,8 @@ def main() -> None:
     ap.add_argument("--golden", action="store_true", help="Run over the labelled golden set")
     ap.add_argument("--message", help="Handle a single message and print the result")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--triage", choices=sorted(POSTURE), default="broad",
+                    help="escalation posture (broad ships; see POSTURE)")
     ap.add_argument("--out", default=str(DATA / "preds_agent.jsonl"))
     args = ap.parse_args()
     set_seed()
@@ -348,7 +409,7 @@ def main() -> None:
     if not CACHE_ONLY:
         unload_except(GEN_MODEL)
 
-    agent = Agent()
+    agent = Agent(triage_posture=args.triage)
 
     if args.message:
         import json
