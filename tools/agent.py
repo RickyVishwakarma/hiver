@@ -51,6 +51,7 @@ from common import (
     info,
     ok,
     read_json,
+    iter_jsonl,
     read_jsonl,
     set_seed,
     write_jsonl,
@@ -110,11 +111,20 @@ class Agent:
         self.names = [i["name"] for i in self.intents]
         self.top_k = top_k
 
-        threads = read_jsonl(THREADS)
-        # Grounding pool: only threads where the brand actually answered in public.
-        # DM-punted threads contain no resolution to learn from.
+        # Stream the thread file and keep only the three fields retrieval needs.
+        # Loading all 27k threads with their full `turns` arrays materialised
+        # ~500MB of Python objects and, on an 8GB machine also hosting Ollama,
+        # pushed free RAM to 0.6GB and made the model server return HTTP 500
+        # mid-run. Only threads with a public brand reply are usable as
+        # grounding; DM-punted ones contain no resolution to learn from.
         self.pool = [
-            t for t in threads
+            {
+                "thread_id": t["thread_id"],
+                "opening_msg": t["opening_msg"],
+                "opening_msg_raw": t["opening_msg_raw"],
+                "first_brand_reply": t["first_brand_reply"],
+            }
+            for t in iter_jsonl(THREADS)
             if t.get("resolved_proxy") and t.get("first_brand_reply") and not t.get("multi_customer")
         ]
         if not self.pool:

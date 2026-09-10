@@ -2,21 +2,46 @@
   "agent": {
     "system": "agent",
     "n": 200,
-    "intent_accuracy": 0.27,
+    "intent_accuracy": 0.375,
     "intent_accuracy_ci": [
-      0.21,
-      0.335
+      0.305,
+      0.445
     ],
-    "intent_macro_f1": 0.2398836538289975,
+    "intent_macro_f1": 0.3455006997164612,
     "intent_macro_f1_ci": [
-      0.17989614588776623,
-      0.2894494401406982
+      0.27210422518588534,
+      0.4083178404904845
     ],
-    "escalation_precision": 0.2028985507246377,
+    "escalation_precision": 0.2014388489208633,
     "escalation_recall": 0.8235294117647058,
     "escalation_recall_ci": [
       0.6874553571428571,
       0.9428968253968252
+    ],
+    "escalation_f1": 0.32369942196531787,
+    "escalation_tp": 28,
+    "escalation_fp": 111,
+    "escalation_fn": 6,
+    "escalation_rate": 0.695
+  },
+  "agent_zeroshot": {
+    "system": "agent_zeroshot",
+    "n": 200,
+    "intent_accuracy": 0.26,
+    "intent_accuracy_ci": [
+      0.2,
+      0.325
+    ],
+    "intent_macro_f1": 0.22962724357258718,
+    "intent_macro_f1_ci": [
+      0.17242457868750433,
+      0.27788562372679554
+    ],
+    "escalation_precision": 0.2028985507246377,
+    "escalation_recall": 0.8235294117647058,
+    "escalation_recall_ci": [
+      0.6857142857142857,
+      0.9428571428571428
     ],
     "escalation_f1": 0.32558139534883723,
     "escalation_tp": 28,
@@ -27,21 +52,21 @@
   "simple": {
     "system": "simple",
     "n": 200,
-    "intent_accuracy": 0.29,
+    "intent_accuracy": 0.285,
     "intent_accuracy_ci": [
-      0.23,
-      0.355
+      0.225,
+      0.345
     ],
-    "intent_macro_f1": 0.19501221840832833,
+    "intent_macro_f1": 0.20507805665747003,
     "intent_macro_f1_ci": [
-      0.1529055527216236,
-      0.2364070839456616
+      0.15949036106858294,
+      0.24652247511017275
     ],
     "escalation_precision": 0.5454545454545454,
     "escalation_recall": 0.35294117647058826,
     "escalation_recall_ci": [
-      0.19510501355013551,
-      0.5250328947368419
+      0.1935483870967742,
+      0.5161290322580645
     ],
     "escalation_f1": 0.42857142857142855,
     "escalation_tp": 12,
@@ -54,13 +79,13 @@
     "n": 200,
     "intent_accuracy": 0.2,
     "intent_accuracy_ci": [
-      0.15,
+      0.145,
       0.255
     ],
-    "intent_macro_f1": 0.03333333333333333,
+    "intent_macro_f1": 0.037037037037037035,
     "intent_macro_f1_ci": [
-      0.025327510917030567,
-      0.04126984126984127
+      0.02814167879670063,
+      0.0451527224435591
     ],
     "escalation_precision": 0.0,
     "escalation_recall": 0.0,
