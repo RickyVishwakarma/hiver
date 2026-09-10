@@ -10,14 +10,14 @@ account of where the headline number misleads.
 
 ---
 
-## Reproduce the headline results (measured: 56 seconds)
+## Reproduce the headline results (measured: 70 seconds)
 
 ```bash
 pip install -r requirements.txt
 python run.py reproduce
 ```
 
-That is the whole grader path. Verified from a clean `git clone`: **56 seconds**,
+That is the whole grader path. Verified from a clean `git clone`: **70 seconds**,
 producing bit-identical macro-F1 values and confidence intervals. It needs **no
 GPU, no Ollama, no API key, and no Kaggle account** — it replays committed model outputs and recomputes every metric,
 confidence interval, and judge-validation statistic from scratch.

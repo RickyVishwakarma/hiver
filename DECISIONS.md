@@ -171,8 +171,10 @@ and invite the suspicion that the prompt was tuned against the test set.
 `sha256(model + prompt + options)` and committed. `ANTHILL_CACHE_ONLY=1` makes a
 cache miss a *hard error*, so the grader path can never silently drift by calling
 a model. Replay is exact rather than approximate — which also sidesteps the fact
-that llama.cpp is not bit-identical across GPU/CPU backends. Measured: **56
-seconds** from a clean clone, with identical numbers.
+that llama.cpp is not bit-identical across GPU/CPU backends. Measured: **70
+seconds** from a clean clone, with bit-identical numbers (verified by
+re-running in a fresh clone and diffing the regenerated metrics against the
+committed ones: no change).
 
 ### 16. Rebuilt the judge as a forced choice, then reported that too as a failure
 
