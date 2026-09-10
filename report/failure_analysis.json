@@ -122,51 +122,23 @@
     "n_wrong": 125
   },
   "verbatim_copies": {
-    "count": 33,
+    "count": 1,
     "examples": [
       {
-        "msg": "@Delta been sitting on the runway in Detroit for about 2 hrs. #theworstairline",
-        "reply": "@369536 Patrick I am sorry that your flight has not taken off yet. We are working to get you in the air as soon as possible. *TBW"
-      },
-      {
-        "msg": "@Delta shoutout to your flight attendants on flight #2068 they made my birthday flight amazing! https://t.co/4PSb8bjGbJ",
-        "reply": "@425997 Hey Elise! Have a fabulous 18th birthday! Enjoy! 😊 *TKR"
-      },
-      {
-        "msg": "VERY disappointed in the conduct of the gate agents for @Delta flight 2601 from @126260. Rude &amp; demeaning. Heartbreaking way to end a vacation.",
-        "reply": "@520291 ...gate agents to be courteous at all times. *TMB 2/2"
+        "msg": "@Delta Already got my 1st Class tickets on @delta to fly to see family for Thanksgiving! Woo Hoo! I love this time of year!",
+        "reply": "Someone is telling us to go travel… https://t.co/GSmD4UpSNN"
       }
     ]
   },
   "stale_mentions": {
-    "count": 182,
+    "count": 0,
     "note": "reply opens with another customer's anonymised handle, copied from precedent",
-    "examples": [
-      "@123456 Hi, please call our customer service at 1-800-DELTA2 for immediate assistance. They are open 24/7. *AFN",
-      "@257859 Hi, Sean. Sorry to hear about your disappointment. All of our prices are based on availability. Also, we are unable to mat",
-      "@241007 We are always looking out for you JP! 😉 Happy birthday to you! 🎂 *TJN"
-    ]
+    "examples": []
   },
   "fabricated_contact_details": {
-    "fabricated": 3,
-    "grounded": 5,
-    "examples": [
-      {
-        "golden_id": "g0000",
-        "detail": "1-800-DELTA2",
-        "reply": "@123456 Hi, please call our customer service at 1-800-DELTA2 for immediate assistance. They are open 24/7. *AFN"
-      },
-      {
-        "golden_id": "g0096",
-        "detail": "1-800-Delta2",
-        "reply": "@116450 For your Delta segments, you can contact Delta directly at 1-800-Delta2 or visit their website for assistance. *AMV"
-      },
-      {
-        "golden_id": "g0147",
-        "detail": "855-551-2113",
-        "reply": "@284075 Hello, Jason. If you need help in utilizing your Companion Certificates, please contact our Companions Team for further assistance at 855-551-"
-      }
-    ]
+    "fabricated": 0,
+    "grounded": 6,
+    "examples": []
   },
   "not_addressed_to_brand": {
     "mentions_competitor": 12,

@@ -11,11 +11,14 @@ Individual stages:
   induce       cluster -> candidate intents
   sample       stratified golden-set draw
   label        hand-label the golden set     (manual)
+  fewshot      build classifier exemplars (excludes golden-set threads)
   generate     run agent + baselines, populate the LLM cache
   judge        LLM-as-judge over all replies
   score        hand-score replies, blind     (manual)
   eval         metrics + bootstrap CIs
   validate     judge-vs-human agreement, bias probes
+  failures     top failure modes with real examples
+  tables       render report tables from the metrics files
   freeze       export the LLM cache for committing
   smoke        end-to-end test on a synthetic fixture (no download needed)
 """
@@ -86,6 +89,9 @@ COMMANDS = {
     "score": lambda a: sys.exit(tool("score_replies.py", *a)),
     "eval": lambda a: sys.exit(tool("run_eval.py", "--detail", *a)),
     "validate": lambda a: sys.exit(tool("validate_judge.py", "--all", *a)),
+    "failures": lambda a: sys.exit(tool("failure_analysis.py", *a)),
+    "fewshot": lambda a: sys.exit(tool("build_fewshot.py", *a)),
+    "tables": lambda a: sys.exit(tool("make_report_assets.py", *a)),
     "freeze": lambda a: sys.exit(tool("freeze_cache.py", *a)),
     "smoke": lambda a: sys.exit(tool("smoke_test.py", *a)),
 }

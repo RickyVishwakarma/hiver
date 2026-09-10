@@ -62,6 +62,19 @@ TOP_K = 4
 NL = chr(10)
 Q = chr(34)
 
+# Anonymised customer handles in this dataset are numeric (@123456). Real brand
+# handles (@Delta) are left alone - only the stale customer ones cause harm.
+LEADING_HANDLE = re.compile(r"^(?:\s*@\d{4,}\s*)+")
+CONTACT_DETAIL = re.compile(
+    r"(1-?800-?[A-Z0-9-]{3,}|\b\d{3}[-.]\d{3}[-.]\d{4}\b|https?://\S+|www\.\S+)",
+    re.IGNORECASE,
+)
+
+
+def _strip_handles(text: str) -> str:
+    """Drop anonymised @123456 handles so they cannot be copied into a reply."""
+    return re.sub(r"@\d{4,}", "", LEADING_HANDLE.sub("", text or "")).strip()
+
 # --- Deterministic escalation rules -----------------------------------------
 # Ordered by severity: the first match wins and becomes the stated reason.
 # These are intentionally high-precision phrasings, not broad topic words: this
@@ -209,23 +222,59 @@ class Agent:
         return intent, max(0.0, min(1.0, conf)), parse_failed
 
     # --- head 2 --------------------------------------------------------------
-    def draft(self, message: str, intent: str, neighbours: list[dict]) -> str:
+    def draft(self, message: str, intent: str, neighbours: list[dict]) -> tuple[str, list[str]]:
+        """Draft a reply. Returns (reply, applied_guards).
+
+        Two guards run after generation. Both exist because the unguarded
+        version failed on real data, not as speculative hardening:
+
+        LEADING HANDLE - 182 of 200 replies opened with the anonymised handle
+        of whichever customer the retrieved precedent was written for
+        ("@123456 Hi, please call..."). In production every one of those would
+        @-mention a stranger. Precedent is stripped of handles before it enters
+        the prompt, and the output is stripped again as a backstop.
+
+        UNGROUNDED CONTACT DETAILS - 3 replies invented a phone number,
+        including "1-800-DELTA2" and "855-551-2113", neither present in the
+        evidence. A support bot publishing a fake hotline under the brand's
+        name is the worst thing this system can do, so any phone number or URL
+        not appearing verbatim in the retrieved evidence is removed.
+        """
         from llm import generate
 
         examples = "\n\n".join(
-            f"Customer: {n['customer']}\nBrand replied: {n['brand_reply']}" for n in neighbours
+            f"Customer: {_strip_handles(n['customer'])}\n"
+            f"Brand replied: {_strip_handles(n['brand_reply'])}"
+            for n in neighbours
         )
         prompt = (
             f"Here is how this brand has replied to similar messages before.\n\n"
             f"{examples}\n\n"
             f"---\nNow reply to this new message (intent: {intent}).\n"
-            f'Customer: "{message}"\n\n'
-            f"Write only the reply text, under 280 characters."
+            f'Customer: "{_strip_handles(message)}"\n\n'
+            f"Write only the reply text, under 280 characters. "
+            f"Do not start with an @mention."
         )
         reply = generate(prompt, system=SYSTEM_DRAFT, max_tokens=160).strip()
         # Models like to wrap replies in quotes or prefix "Brand:".
-        reply = re.sub(r'^(?:brand(?:\s+replied)?|reply|response)\s*:\s*', "", reply, flags=re.I)
-        return reply.strip().strip('"').strip()
+        reply = re.sub(r"^(?:brand(?:\s+replied)?|reply|response)\s*:\s*", "", reply, flags=re.I)
+        reply = reply.strip().strip('"').strip()
+
+        guards = []
+        stripped = _strip_handles(reply)
+        if stripped != reply:
+            guards.append("removed_stale_handle")
+            reply = stripped
+
+        evidence = " ".join((n.get("brand_reply") or "") for n in neighbours)
+        cleaned = CONTACT_DETAIL.sub(
+            lambda m: m.group(0) if m.group(0).lower() in evidence.lower() else "", reply
+        )
+        if cleaned != reply:
+            guards.append("removed_ungrounded_contact")
+            reply = re.sub(r"\s{2,}", " ", cleaned).strip()
+
+        return reply, guards
 
     # --- head 3 --------------------------------------------------------------
     def route(
@@ -269,12 +318,13 @@ class Agent:
         intent, self_conf, parse_failed = self.classify(message)
         neighbours, score = self.retrieve(message)
         escalate, reason, decided_by = self.route(message, intent, score, parse_failed)
-        reply = self.draft(message, intent, neighbours)
+        reply, guards = self.draft(message, intent, neighbours)
         return {
             "intent": intent,
             "self_reported_confidence": self_conf,
             "retrieval_score": score,
             "reply": reply,
+            "reply_guards": guards,
             "escalate": escalate,
             "escalation_reason": reason,
             "decided_by": decided_by,
