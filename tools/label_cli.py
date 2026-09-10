@@ -76,16 +76,24 @@ def render(ex: dict, idx: int, total: int, intents: list[dict], done: int) -> No
     print("-" * 76)
 
 
-def ask_escalation() -> tuple[bool, str, str]:
+def ask_escalation(intent: str) -> tuple[bool | None, str, str]:
+    # Echo the selection back. Without this a mis-key is invisible: the
+    # screen just advances and a wrong label is saved silently. Measured
+    # cost of the version without it: 28 of 40 pass-2 labels flipped, many
+    # between unrelated intents (flight_disruption <-> praise_compliment).
+    print("")
+    print("  >>> RECORDED: " + intent.upper() + " <<<")
     print("\n  Should this be AUTO-HANDLED or ESCALATED to a human?")
-    print("    a = auto-handle        e = escalate")
+    print("    a = auto-handle    e = escalate    x = wrong intent, redo")
     while True:
         c = input("  > ").strip().lower()
+        if c == "x":
+            return None, "", ""
         if c == "a":
             return False, "", ""
         if c == "e":
             break
-        print("  (a or e)")
+        print("  (a, e, or x)")
     print("\n  Reason for escalation:")
     for i, (code, desc) in enumerate(REASONS, 1):
         print(f"    {i}. {code:<20} {desc}")
@@ -156,7 +164,9 @@ def main() -> None:
             continue
 
         intent = intents[int(c) - 1]["name"]
-        escalate, reason, note = ask_escalation()
+        escalate, reason, note = ask_escalation(intent)
+        if escalate is None:  # wrong intent - redo this example
+            continue
         labels[ex["golden_id"]] = {
             "golden_id": ex["golden_id"],
             "thread_id": ex["thread_id"],
@@ -171,6 +181,9 @@ def main() -> None:
         }
         # Persist every single example: a crash at #180 must not cost the session.
         write_jsonl(outfile, [labels[k] for k in sorted(labels)])
+        route = ("ESCALATE (" + reason + ")") if escalate else "auto-handle"
+        print("")
+        print("  saved: " + intent + " / " + route)
         i += 1
 
     clear()
