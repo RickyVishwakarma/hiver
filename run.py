@@ -15,6 +15,8 @@ Individual stages:
   generate     run agent + baselines, populate the LLM cache
   judge        LLM-as-judge over all replies
   score        hand-score replies, blind     (manual)
+  judgepairs   pairwise LLM judge, both orders (position-bias probe)
+  scorepairs   hand-pick the better reply, blind (manual, ~10 min)
   eval         metrics + bootstrap CIs
   validate     judge-vs-human agreement, bias probes
   failures     top failure modes with real examples
@@ -87,6 +89,8 @@ COMMANDS = {
     "label": lambda a: sys.exit(tool("label_cli.py", *a)),
     "judge": lambda a: sys.exit(tool("judge.py", "--all", *a)),
     "score": lambda a: sys.exit(tool("score_replies.py", *a)),
+    "judgepairs": lambda a: sys.exit(tool("judge_pairwise.py", *a)),
+    "scorepairs": lambda a: sys.exit(tool("score_pairs.py", *a)),
     "eval": lambda a: sys.exit(tool("run_eval.py", "--detail", *a)),
     "validate": lambda a: sys.exit(tool("validate_judge.py", "--all", *a)),
     "failures": lambda a: sys.exit(tool("failure_analysis.py", *a)),

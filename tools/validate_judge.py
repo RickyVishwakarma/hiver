@@ -270,16 +270,162 @@ def bias_probes() -> dict:
     return out
 
 
+# --- 4. the pairwise instrument ----------------------------------------------
+def _kappa3(a: list[str], b: list[str]) -> float:
+    """Cohen's kappa over the fixed 3-class label set {A, B, tie}.
+
+    The label set is pinned rather than inferred from the data: if one rater
+    never says "tie", sklearn would silently score a 2-class problem and report
+    a kappa that is not comparable to the others.
+    """
+    labels = ["A", "B", "tie"]
+    return float(cohen_kappa_score(a, b, labels=labels))
+
+
+def _pairwise_one(name: str, judge: dict, human: dict) -> dict:
+    """Score one prompt variant against the human's forced choices.
+
+    Two judge configurations are reported for each variant, because they answer
+    different questions:
+
+      single order  the verdict from the ONE presentation the human also saw.
+                    This is what a naive deployment would ship - judge each pair
+                    once - so it is the number a reader would otherwise assume.
+      swap-checked  the pair is judged in both orders; disagreement between them
+                    is recorded as `undecided` and folded into "tie". Stricter,
+                    and much closer to an honest reading of what the judge knows.
+
+    And three subsets, because each isolates a different confound:
+      all pairs         headline agreement over the whole set
+      excluding trivial the trivial baseline sends one canned reply to every
+                        message, so agreeing that it lost is nearly free
+      decisive only     neither rater said tie; isolates whether the judge picks
+                        the same WINNER from whether it shares the human's
+                        appetite for calling ties
+    """
+    shared = sorted(set(human) & set(judge))
+    flip_rate = float(np.mean([not judge[p]["order_consistent"] for p in shared]))
+    parse_rate = float(np.mean([bool(judge[p].get("parse_failed")) for p in shared]))
+
+    out: dict = {
+        "n": len(shared),
+        "position_bias_flip_rate": flip_rate,
+        "parse_failure_rate": parse_rate,
+    }
+    print(f"\n  --- variant: {name}  (n={len(shared)}) " + "-" * (44 - len(name)))
+    print(f"  position-bias flip rate {flip_rate:>6.1%}    unparseable verdicts {parse_rate:>6.1%}")
+
+    for cfg, getter in (
+        ("single order", lambda p: judge[p]["verdict_as_shown"]),
+        ("swap-checked", lambda p: "tie" if judge[p]["verdict"] == "undecided" else judge[p]["verdict"]),
+    ):
+        out[cfg.replace(" ", "_").replace("-", "_")] = row = {}
+        for subset, keys in (
+            ("all pairs", shared),
+            ("excluding trivial", [p for p in shared if "trivial" not in judge[p]["comparison"]]),
+            (
+                "decisive only",
+                [p for p in shared if getter(p) != "tie" and human[p]["verdict"] != "tie"],
+            ),
+        ):
+            if len(keys) < 5:
+                print(f"    {cfg:<13} {subset:<18} (only {len(keys)} pairs - not reported)")
+                continue
+            h = [human[p]["verdict"] for p in keys]
+            j = [getter(p) for p in keys]
+            agree = float(np.mean([x == y for x, y in zip(h, j)]))
+            k = _kappa3(h, j)
+            print(
+                f"    {cfg:<13} {subset:<18} n={len(keys):<4} agreement {agree:.3f}"
+                f"   kappa {k:>6.3f}   {interpret(k)}"
+            )
+            row[subset.replace(" ", "_")] = {"n": len(keys), "raw_agreement": agree, "kappa": k}
+
+    # Chance is not 1/3: both raters may favour ties or favour one side. State
+    # the marginals so raw agreement is read against the right baseline.
+    hcount = {v: sum(human[p]["verdict"] == v for p in shared) for v in ("A", "B", "tie")}
+    jcount = {v: sum(judge[p]["verdict_as_shown"] == v for p in shared) for v in ("A", "B", "tie")}
+    print(f"    verdict mix   human {hcount}\n                  judge {jcount}  (single order)")
+    return out
+
+
+def pairwise_agreement() -> dict:
+    """Does a FORCED-CHOICE judge agree with the human where the 5-axis one did not?
+
+    The 5-axis judge scored quadratic-weighted kappa 0.003: it measures nothing.
+    The hypothesis tested here is that absolute 1-5 scoring, not the model, was
+    the problem - a 3B model has no stable anchor for what a "4" is, but picking
+    the better of two concrete replies needs no anchor.
+
+    Every prompt variant that was tried is scored against the same human
+    choices. Publishing only the best variant would be tuning the instrument
+    against its own validation set.
+    """
+    human = {r["pair_id"]: r for r in read_jsonl(DATA / "human_pairwise.jsonl")}
+    if len(human) < 10:
+        warn(
+            f"only {len(human)} pairs judged by hand - run: python tools/judge_pairwise.py "
+            "then python tools/score_pairs.py"
+        )
+        return {}
+
+    variants = {}
+    for path in sorted(DATA.glob("judgements_pairwise*.jsonl")):
+        rows = read_jsonl(path)
+        if not rows:
+            continue
+        name = rows[0].get("variant") or path.stem.replace("judgements_pairwise", "").strip("_") or "direct"
+        if len(set(human) & {r["pair_id"] for r in rows}) >= 10:
+            variants[name] = {r["pair_id"]: r for r in rows}
+    if not variants:
+        warn("no pairwise judgements overlap the human set - run: python tools/judge_pairwise.py")
+        return {}
+
+    print(f"\n{'='*72}\n  PAIRWISE JUDGE vs HUMAN\n{'='*72}")
+    out = {name: _pairwise_one(name, j, human) for name, j in sorted(variants.items())}
+
+    # Headline = the best kappa any variant achieved, in its strictest honest
+    # configuration, on the subset that excludes the easy trivial-baseline pairs.
+    # Taking the best across variants is deliberately generous: if even the most
+    # flattering reading is noise, the conclusion is not a matter of tuning.
+    def best(v: dict) -> float:
+        k = v.get("swap_checked", {}).get("excluding_trivial", {}).get("kappa")
+        return k if k is not None else float("nan")
+
+    ks = {n: best(v) for n, v in out.items()}
+    top = max(ks, key=lambda n: (-1e9 if np.isnan(ks[n]) else ks[n]))
+    k = ks[top]
+    print(
+        f"\n  CONSEQUENCE FOR THE REPORT:\n"
+        f"    best pairwise kappa across variants = {k:.3f} (variant '{top}',\n"
+        f"    swap-checked, excluding the trivial baseline)\n"
+        + (
+            "    => the pairwise reframing did NOT rescue the judge. Neither\n"
+            "       instrument measures reply quality, so no reply-quality claim\n"
+            "       is made anywhere in the report.\n"
+            if not (k >= 0.2)
+            else "    => reply quality may be reported as WIN RATES from this instrument,\n"
+            "       never as absolute 1-5 scores, and only for gaps larger than the\n"
+            "       position-bias flip rate above.\n"
+        )
+    )
+    out["_headline"] = {"variant": top, "kappa": k, "usable": bool(k >= 0.2)}
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--self-agreement", action="store_true")
     ap.add_argument("--judge-agreement", action="store_true")
     ap.add_argument("--bias", action="store_true")
+    ap.add_argument("--pairwise", action="store_true")
     args = ap.parse_args()
     set_seed()
 
-    run_all = args.all or not (args.self_agreement or args.judge_agreement or args.bias)
+    run_all = args.all or not (
+        args.self_agreement or args.judge_agreement or args.bias or args.pairwise
+    )
     out = {}
     if run_all or args.self_agreement:
         out["human_ceiling"] = self_agreement()
@@ -287,6 +433,8 @@ def main() -> None:
         out["judge_agreement"] = judge_agreement()
     if run_all or args.bias:
         out["bias"] = bias_probes()
+    if run_all or args.pairwise:
+        out["pairwise"] = pairwise_agreement()
 
     path = REPORT_DIR / "judge_validation.json"
     path.write_text(json.dumps(out, indent=2, default=float), encoding="utf-8")
