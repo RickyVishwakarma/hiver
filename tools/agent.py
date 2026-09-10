@@ -42,6 +42,7 @@ import time
 import numpy as np
 
 from common import (
+    GEN_MODEL,
     CACHED_GENERATIONS,
     DATA,
     GOLDEN,
@@ -291,6 +292,11 @@ def main() -> None:
     ap.add_argument("--out", default=str(DATA / "preds_agent.jsonl"))
     args = ap.parse_args()
     set_seed()
+
+    from llm import CACHE_ONLY, unload_except
+
+    if not CACHE_ONLY:
+        unload_except(GEN_MODEL)
 
     agent = Agent()
 

@@ -118,10 +118,13 @@ def main() -> None:
     args = ap.parse_args()
     set_seed()
 
-    from llm import CACHE_ONLY, health, print_stats
+    from llm import CACHE_ONLY, health, print_stats, unload_except
 
     if not CACHE_ONLY and not health():
         die("Ollama is not reachable. Start it, or run with ANTHILL_CACHE_ONLY=1")
+
+    if not CACHE_ONLY:
+        unload_except(JUDGE_MODEL)
 
     golden = {g["golden_id"]: g for g in read_jsonl(GOLDEN)}
     if not golden:

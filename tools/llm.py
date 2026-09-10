@@ -196,6 +196,45 @@ def print_stats() -> None:
     )
 
 
+def loaded_models() -> list[str]:
+    """Models Ollama currently holds in memory."""
+    try:
+        import requests
+
+        r = requests.get(f'{OLLAMA_HOST}/api/ps', timeout=5)
+        return [m.get('name', '') for m in r.json().get('models', [])]
+    except Exception:
+        return []
+
+
+def unload_except(keep: str) -> list[str]:
+    """Evict every loaded model except `keep`, and return what was evicted.
+
+    This machine has 4GB VRAM and 8GB RAM; two 3B models do not fit together.
+    Ollama keeps a model resident after use, so running the judge straight
+    after the generator left both loaded and the server returned HTTP 500
+    mid-run - twice. Sending keep_alive=0 releases a model immediately.
+    """
+    import requests
+
+    evicted = []
+    for name in loaded_models():
+        if not name or name.split(':')[0] == keep.split(':')[0]:
+            continue
+        try:
+            requests.post(
+                f'{OLLAMA_HOST}/api/generate',
+                json={'model': name, 'prompt': '', 'keep_alive': 0},
+                timeout=60,
+            )
+            evicted.append(name)
+        except Exception:
+            pass
+    if evicted:
+        info(f'unloaded {", ".join(evicted)} to free memory')
+    return evicted
+
+
 def health() -> bool:
     """Is Ollama reachable? Used to give a clear error instead of a stack trace."""
     try:
