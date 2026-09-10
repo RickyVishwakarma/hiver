@@ -112,14 +112,9 @@ def self_agreement() -> dict:
     shared = sorted(set(p1) & set(p2))
     if len(shared) < 10:
         warn(f"only {len(shared)} examples labelled twice - run: python tools/label_cli.py --pass2")
-    pace1, pace2 = _pace(list(p1.values())), _pace(list(p2.values()))
-    if pace2 is not None:
-        print('')
-        print('  labelling pace: pass1 %.1fs/label, pass2 %.1fs/label' % (pace1 or 0, pace2))
-        if pace2 < 10:
-            warn('pass 2 averaged %.1fs per label. This figure is a LOWER BOUND on' % pace2)
-            warn('reliability, not a ceiling. The report must say so.')
         return {}
+
+    pace1, pace2 = _pace(list(p1.values())), _pace(list(p2.values()))
 
     i1 = [p1[g]["intent"] for g in shared]
     i2 = [p2[g]["intent"] for g in shared]
@@ -131,14 +126,21 @@ def self_agreement() -> dict:
     agree_intent = float(np.mean([a == b for a, b in zip(i1, i2)]))
     agree_esc = float(np.mean([a == b for a, b in zip(e1, e2)]))
 
-    print(f"\n{'='*72}\n  HUMAN CEILING - you vs. yourself (n={len(shared)})\n{'='*72}")
+    print(f"\n{'='*72}\n  ANNOTATOR SELF-AGREEMENT - you vs. yourself (n={len(shared)})\n{'='*72}")
     print(f"  intent      raw agreement {agree_intent:.3f}   Cohen's kappa {k_intent:.3f}")
     print(f"  escalation  raw agreement {agree_esc:.3f}   Cohen's kappa {k_esc:.3f}")
-    print(
-        f"\n  READ THIS AS: no system can be expected to exceed ~{agree_intent:.0%} agreement\n"
-        f"  with these intent labels, because the labels themselves are only that\n"
-        f"  stable. Model scores must be read against this ceiling, not against 100%."
-    )
+    if pace2 is not None:
+        print(f"\n  labelling pace: pass1 {pace1 or 0:.1f}s/label, pass2 {pace2:.1f}s/label")
+    if pace2 is not None and pace2 < 10:
+        warn(f"pass 2 averaged {pace2:.1f}s per label - too fast to read a tweet and")
+        warn("choose among 9 intents. This is a LOWER BOUND on reliability, not a")
+        warn("ceiling, and the report must say so.")
+    else:
+        print(
+            f"\n  READ THIS AS: no system can be expected to exceed ~{agree_intent:.0%} agreement\n"
+            f"  with these intent labels, because the labels themselves are only that\n"
+            f"  stable. Model scores are read against this, not against 100%."
+        )
     disagreements = [(g, p1[g]["intent"], p2[g]["intent"]) for g in shared if p1[g]["intent"] != p2[g]["intent"]]
     if disagreements:
         print(f"\n  {len(disagreements)} intent flips (these mark genuinely ambiguous boundaries):")

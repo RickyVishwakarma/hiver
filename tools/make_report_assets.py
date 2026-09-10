@@ -77,14 +77,30 @@ def ceiling_block(validation: dict) -> str:
     hc = validation.get("human_ceiling") or {}
     if not hc:
         return "_Second-pass labelling has not been run yet._"
+    # Pace is reported alongside because the two are not independent: a re-label
+    # pass run at a few seconds per example measures input speed, not
+    # consistency, and the figure is then a lower bound rather than a ceiling.
+    pace = hc.get("pass2_seconds_per_label")
+    caveat = ""
+    if hc.get("is_lower_bound_only"):
+        caveat = (
+            "\n\n> **This is a lower bound, not a ceiling.** The re-label pass averaged "
+            f"{pace:.1f}s per example (against {hc.get('pass1_seconds_per_label', 0):.1f}s on "
+            "the first pass), which is not enough time to read a tweet and choose among "
+            "9 intents plus an escalation reason. It bounds reliability from below; the "
+            "true ceiling is unmeasured."
+        )
+    return caveat and (_ceiling_body(hc) + caveat) or (_ceiling_body(hc))
+
+
+def _ceiling_body(hc: dict) -> str:
     return (
         f"- Examples re-labelled: **{hc['n']}**\n"
         f"- Intent: raw agreement **{hc['intent_raw_agreement']:.3f}**, "
         f"Cohen's kappa **{hc['intent_kappa']:.3f}**\n"
         f"- Escalation: raw agreement **{hc['escalation_raw_agreement']:.3f}**, "
         f"Cohen's kappa **{hc['escalation_kappa']:.3f}**\n\n"
-        f"No system can be expected to exceed ~{hc['intent_raw_agreement']:.0%} agreement "
-        f"with these labels. Model scores below are read against this ceiling, not against 100%."
+        f"Model scores are read against this figure rather than against 100%."
     )
 
 
@@ -151,7 +167,7 @@ that ignores the tail cannot hide behind the head. Escalation precision and
 recall are never averaged - a missed escalation and an over-escalation differ in
 cost by orders of magnitude.
 
-## Human ceiling
+## Annotator self-agreement
 
 {ceiling_block(validation)}
 

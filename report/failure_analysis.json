@@ -1,0 +1,180 @@
+{
+  "system": "agent",
+  "n": 200,
+  "intent_confusions": [
+    {
+      "true": "service_complaint",
+      "predicted": "support_unreachable",
+      "count": 7,
+      "examples": [
+        "@824 @delta a 2+ wait time for a customer service representative is unacceptable for an issue with a flight in 3 hrs.",
+        "@Delta Following up on the status of my complaint investigation as it has almost been 30 days.  Case Number 00147503",
+        "@Delta I need your assistance and can't wait on hold for an hour. Please dm me."
+      ]
+    },
+    {
+      "true": "praise_compliment",
+      "predicted": "social_chatter",
+      "count": 6,
+      "examples": [
+        "Anywhere as long as yall dont take me https://t.co/dojsELWPJo",
+        "After 30 years on this earth, I got my first bee sting yesterday... and snapped this @delta… https://t.co/fnr57uBtZf",
+        "I've been flying to Appleton International Airport (ATW) for years thanks to @Delta  - it's a great airport!! https://t.co/K1GLamOHuC  #Wisconsin #ATLdirecttoATW #ATW  #WhoneedsGRB"
+      ]
+    },
+    {
+      "true": "other",
+      "predicted": "social_chatter",
+      "count": 6,
+      "examples": [
+        "#Friday (at @Delta World Headquarters in Atlanta, GA) https://t.co/8POgwglbnG",
+        "Boarding my only flight of the day: CVG-LAS via @Delta. heading to Las Vegas for #CAWorld to visit with customers, @690254, @46140 team and @690255 colleagues in a jam-packed week of mtgs, sessions, a",
+        "Yo @Delta, your suggested answer for brainteaser 1 in the Oct sky mag is... not right... try e!"
+      ]
+    },
+    {
+      "true": "praise_compliment",
+      "predicted": "service_complaint",
+      "count": 6,
+      "examples": [
+        "Thanks @AmericanAir for being the worse airline I have EVER experienced. I really appreciate your \"sincere apology\" in the form of an email saying you'll try harder next time. Never again. Thank you @",
+        "I'll now be committing to any other airline than @Delta. This is an absolute joke. What a terrible airline.",
+        "@AmericanAir And I’m sure we will get some bull crap safety explanation. We need @Delta to start to fly to POS"
+      ]
+    },
+    {
+      "true": "booking_change_refund",
+      "predicted": "support_unreachable",
+      "count": 5,
+      "examples": [
+        "@VirginAtlantic @Delta @British_Airways How long does the refund process usually take? Sorry if I’m a bit angry, I work in complaints too and know it’s not your guys’ fault 💖",
+        "@delta I'm spending over $20.00 on this wifi connection? This tweet has taken nearly 20 minutes to send out.  How do I get a refund?  @116462 you're causing me to miss the entire @142750 game! https:/",
+        "@116665 your customer service is appalling. Been waiting 3 months for you to give us our refund from @Delta sort it out!"
+      ]
+    }
+  ],
+  "over_escalation": {
+    "count": 111,
+    "by_source": {
+      "rule:account_security": 2,
+      "llm": 100,
+      "rule:safety_harm": 1,
+      "rule:policy_exception": 7,
+      "rule:classifier_parse_failure": 1
+    },
+    "examples": [
+      {
+        "msg": "@Delta This round trip flight was $182 a weeks ago.. why is there 250% mark up? #Scam https://t.co/ZfCQB2siqe",
+        "true_intent": "booking_change_refund",
+        "decided_by": "rule:account_security"
+      },
+      {
+        "msg": "@delta been on the tarmac for almost an hour DL4233. Now incurring wait fees from my car service!",
+        "true_intent": "booking_change_refund",
+        "decided_by": "llm"
+      },
+      {
+        "msg": "@Delta been sitting on the runway in Detroit for about 2 hrs. #theworstairline",
+        "true_intent": "flight_disruption",
+        "decided_by": "llm"
+      }
+    ]
+  },
+  "missed_escalation": {
+    "count": 6,
+    "examples": [
+      {
+        "msg": "@Delta upgrade there and baby next to me way back - all things equal out",
+        "true_intent": "seating_upgrade",
+        "human_reason": "safety_harm"
+      },
+      {
+        "msg": "Arrived in Chicago and my bag is still in Atlanta, thanks @delta! 🙃",
+        "true_intent": "service_complaint",
+        "human_reason": "policy_exception"
+      },
+      {
+        "msg": "@Delta Following up on the status of my complaint investigation as it has almost been 30 days.  Case Number 00147503",
+        "true_intent": "service_complaint",
+        "human_reason": "insufficient_info"
+      },
+      {
+        "msg": "@Delta I linked my skymiles account with @115879 a while back and was receiving miles. That hasn’t shown up on my account since July.",
+        "true_intent": "flight_disruption",
+        "human_reason": "policy_exception"
+      },
+      {
+        "msg": "@Delta \nI’m flying DL2829 from ywg to msp on Thursday morning. What time should I arrive at airport if I am carry on only? Thx",
+        "true_intent": "support_unreachable",
+        "human_reason": "account_security"
+      },
+      {
+        "msg": "Terrible, @Delta. Forced gatecheck of the tiniest carryon bag in sight, on the 2nd leg of a redeye. Bad enough bf utter lack of empathy. Sad",
+        "true_intent": "baggage_issue",
+        "human_reason": "safety_harm"
+      }
+    ]
+  },
+  "calibration": {
+    "mean_confidence_when_correct": 0.974,
+    "mean_confidence_when_wrong": 0.975,
+    "n_correct": 75,
+    "n_wrong": 125
+  },
+  "verbatim_copies": {
+    "count": 33,
+    "examples": [
+      {
+        "msg": "@Delta been sitting on the runway in Detroit for about 2 hrs. #theworstairline",
+        "reply": "@369536 Patrick I am sorry that your flight has not taken off yet. We are working to get you in the air as soon as possible. *TBW"
+      },
+      {
+        "msg": "@Delta shoutout to your flight attendants on flight #2068 they made my birthday flight amazing! https://t.co/4PSb8bjGbJ",
+        "reply": "@425997 Hey Elise! Have a fabulous 18th birthday! Enjoy! 😊 *TKR"
+      },
+      {
+        "msg": "VERY disappointed in the conduct of the gate agents for @Delta flight 2601 from @126260. Rude &amp; demeaning. Heartbreaking way to end a vacation.",
+        "reply": "@520291 ...gate agents to be courteous at all times. *TMB 2/2"
+      }
+    ]
+  },
+  "stale_mentions": {
+    "count": 182,
+    "note": "reply opens with another customer's anonymised handle, copied from precedent",
+    "examples": [
+      "@123456 Hi, please call our customer service at 1-800-DELTA2 for immediate assistance. They are open 24/7. *AFN",
+      "@257859 Hi, Sean. Sorry to hear about your disappointment. All of our prices are based on availability. Also, we are unable to mat",
+      "@241007 We are always looking out for you JP! 😉 Happy birthday to you! 🎂 *TJN"
+    ]
+  },
+  "fabricated_contact_details": {
+    "fabricated": 3,
+    "grounded": 5,
+    "examples": [
+      {
+        "golden_id": "g0000",
+        "detail": "1-800-DELTA2",
+        "reply": "@123456 Hi, please call our customer service at 1-800-DELTA2 for immediate assistance. They are open 24/7. *AFN"
+      },
+      {
+        "golden_id": "g0096",
+        "detail": "1-800-Delta2",
+        "reply": "@116450 For your Delta segments, you can contact Delta directly at 1-800-Delta2 or visit their website for assistance. *AMV"
+      },
+      {
+        "golden_id": "g0147",
+        "detail": "855-551-2113",
+        "reply": "@284075 Hello, Jason. If you need help in utilizing your Companion Certificates, please contact our Companions Team for further assistance at 855-551-"
+      }
+    ]
+  },
+  "not_addressed_to_brand": {
+    "mentions_competitor": 12,
+    "never_mentions_delta": 7,
+    "examples": [
+      "Thanks @AmericanAir for being the worse airline I have EVER experienced. I really appreciate your \"sincere apology\" in the form of an email saying you'll try ha",
+      "Yo am I allowed to take my thanksgiving leftovers back w me on the plane? @Delta @142008 @SouthwestAir",
+      "@VirginAtlantic @Delta @British_Airways How long does the refund process usually take? Sorry if I’m a bit angry, I work in complaints too and know it’s not your"
+    ]
+  }
+}
