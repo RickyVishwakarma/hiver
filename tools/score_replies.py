@@ -62,6 +62,16 @@ def main() -> None:
     if not golden:
         die("label the golden set first")
 
+    # The human must see EXACTLY the evidence the judge saw. If the two score
+    # against different context, the agreement statistic in validate_judge.py is
+    # comparing two different tasks and means nothing. This mirrors the shared
+    # evidence map in judge.py.
+    evidence = {
+        p["golden_id"]: p.get("retrieved", [])
+        for p in read_jsonl(DATA / "preds_agent.jsonl")
+        if p.get("retrieved")
+    }
+
     # Gather candidate replies from every system.
     items = []
     for path in sorted(DATA.glob("preds_*.jsonl")):
@@ -73,7 +83,7 @@ def main() -> None:
                         "golden_id": p["golden_id"],
                         "system": system,
                         "reply": p["reply"],
-                        "retrieved": p.get("retrieved", []),
+                        "retrieved": p.get("retrieved") or evidence.get(p["golden_id"], []),
                     }
                 )
     if not items:

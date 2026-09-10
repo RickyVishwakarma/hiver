@@ -129,7 +129,11 @@ class Agent:
 
         q = encode([message])[0]
         sims = self.pool_vecs @ q  # both L2-normalised -> cosine
-        idx = np.argpartition(-sims, self.top_k)[: self.top_k]
+        k = min(self.top_k, len(sims))
+        if k < len(sims):
+            idx = np.argpartition(-sims, k - 1)[:k]  # kth must be < len(sims)
+        else:
+            idx = np.arange(len(sims))
         idx = idx[np.argsort(-sims[idx])]
         neighbours = [
             {

@@ -1,28 +1,28 @@
 {
   "agent": {
     "system": "agent",
-    "n": 6,
-    "intent_accuracy": 0.5,
+    "n": 4,
+    "intent_accuracy": 0.75,
     "intent_accuracy_ci": [
-      0.16666666666666666,
-      0.8333333333333334
+      0.25,
+      1.0
     ],
-    "intent_macro_f1": 0.41666666666666663,
+    "intent_macro_f1": 0.6,
     "intent_macro_f1_ci": [
-      0.1111111111111111,
-      0.6296296296296297
+      0.2,
+      1.0
     ],
-    "escalation_precision": 0.6,
+    "escalation_precision": 0.75,
     "escalation_recall": 1.0,
     "escalation_recall_ci": [
       1.0,
       1.0
     ],
-    "escalation_f1": 0.7499999999999999,
+    "escalation_f1": 0.8571428571428571,
     "escalation_tp": 3,
-    "escalation_fp": 2,
+    "escalation_fp": 1,
     "escalation_fn": 0,
-    "escalation_rate": 0.8333333333333334
+    "escalation_rate": 1.0
   },
   "simple": {
     "system": "simple",
@@ -34,13 +34,13 @@
     ],
     "intent_macro_f1": 0.9862700228832952,
     "intent_macro_f1_ci": [
-      0.951156462585034,
+      0.9510204081632653,
       1.0
     ],
     "escalation_precision": 1.0,
     "escalation_recall": 0.7777777777777778,
     "escalation_recall_ci": [
-      0.6511627906976745,
+      0.6530390417036379,
       0.8936170212765957
     ],
     "escalation_f1": 0.8750000000000001,

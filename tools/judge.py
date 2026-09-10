@@ -119,6 +119,21 @@ def main() -> None:
     paths = (
         [DATA / f"preds_{args.system}.jsonl"] if args.system else sorted(DATA.glob("preds_*.jsonl"))
     )
+
+    # Shared grounding evidence, keyed by example. Only the agent records its
+    # retrievals, but the judge must score every system's groundedness against
+    # the SAME evidence - otherwise baselines are judged against an empty
+    # context and the axis is not comparable across systems.
+    evidence = {
+        p["golden_id"]: p.get("retrieved", [])
+        for p in read_jsonl(DATA / "preds_agent.jsonl")
+        if p.get("retrieved")
+    }
+    if evidence:
+        info(f"shared grounding evidence available for {len(evidence)} examples")
+    else:
+        warn("no agent retrievals found - groundedness will be scored without evidence")
+
     all_rows = []
     for path in paths:
         preds = read_jsonl(path)
@@ -133,11 +148,9 @@ def main() -> None:
             g = golden.get(p["golden_id"])
             if not g:
                 continue
-            # Baselines carry no retrieved neighbours; the judge still needs
-            # grounding evidence, so we reuse the agent's retrieval for the same
-            # example when available. Identical evidence for every system keeps
-            # the groundedness axis comparable across systems.
-            neighbours = p.get("retrieved") or []
+            # Baselines carry no retrieved neighbours, so fall back to the
+            # agent's retrieval for this same example (see `evidence` above).
+            neighbours = p.get("retrieved") or evidence.get(p["golden_id"], [])
             row = {"golden_id": p["golden_id"], "system": name, "reply": p.get("reply", "")}
             row.update(judge_one(g["customer_message"], p.get("reply", ""), neighbours))
             all_rows.append(row)
