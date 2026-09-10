@@ -1,3 +1,41 @@
 {
-  "human_ceiling": {}
+  "judge_agreement": {
+    "groundedness": {
+      "kappa_quadratic": 0.016730401529636785,
+      "spearman": 0.007669722074432928,
+      "judge_mean": 3.772727272727273,
+      "human_mean": 2.159090909090909
+    },
+    "correctness": {
+      "kappa_quadratic": 0.16293643688451198,
+      "spearman": 0.15624856999458747,
+      "judge_mean": 2.6136363636363638,
+      "human_mean": 2.5454545454545454
+    },
+    "tone": {
+      "kappa_quadratic": 0.02317290552584672,
+      "spearman": 0.10679286732643024,
+      "judge_mean": 4.75,
+      "human_mean": 2.5681818181818183
+    },
+    "actionability": {
+      "kappa_quadratic": -0.0235294117647058,
+      "spearman": -0.10219887491931587,
+      "judge_mean": 3.727272727272727,
+      "human_mean": 2.5
+    },
+    "safety": {
+      "kappa_quadratic": -0.041293338527464085,
+      "spearman": -0.2467942066082745,
+      "judge_mean": 4.090909090909091,
+      "human_mean": 2.2045454545454546
+    },
+    "overall": {
+      "kappa_quadratic": 0.002647253474520217,
+      "spearman": -0.2605609224583347,
+      "judge_mean": 3.790909090909092,
+      "human_mean": 2.395454545454546
+    },
+    "_min_detectable_gap": 0.7366862368540951
+  }
 }

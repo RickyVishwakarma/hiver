@@ -153,7 +153,11 @@ def main() -> None:
                 if c == "q":
                     aborted = True
                     break
-                if c in "12345" and c:
+                # Deliberately NOT `c in "12345"`: that is a SUBSTRING test, so
+                # "12", "23" and "123" all passed and were stored verbatim as
+                # 12, 23, 123. It corrupted 4 of 48 human scores before it was
+                # caught by an out-of-range check in validate_judge.
+                if c.isdigit() and 1 <= int(c) <= 5 and len(c) == 1:
                     rec[axis] = int(c)
                     break
             if aborted:

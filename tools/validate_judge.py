@@ -162,6 +162,17 @@ def judge_agreement() -> dict:
     human = {(r["golden_id"], r["system"]): r for r in read_jsonl(HUMAN_SCORES)}
     judged = {(r["golden_id"], r["system"]): r for r in read_jsonl(DATA / "judgements.jsonl")}
     shared = sorted(set(human) & set(judged))
+    # Drop any record with an out-of-range axis. A scoring-CLI bug once stored
+    # values like 23 and 123; averaging those in silently destroys the
+    # correlation this function exists to measure. Fail loudly, not quietly.
+    def _valid(r):
+        return all(isinstance(r.get(a), (int, float)) and 1 <= r[a] <= 5 for a in AXES)
+
+    dropped = [k for k in shared if not _valid(human[k]) or not _valid(judged[k])]
+    if dropped:
+        warn(f'excluding {len(dropped)} scored replies with out-of-range axes: '
+             + ', '.join(f'{g}/{s}' for g, s in dropped[:6]))
+        shared = [k for k in shared if k not in set(dropped)]
     if len(shared) < 10:
         warn(f"only {len(shared)} replies scored by both - run: python tools/score_replies.py")
         return {}
